@@ -73,7 +73,7 @@ class World {
             // Check if tree is too close to other trees
             if (keep) {
                 for (const tree of trees) {
-                    if (distance(tree, p) < this.treeSize) {
+                    if (distance(tree.center, p) < this.treeSize) {
                         keep = false;
                         break
                     }
@@ -93,7 +93,7 @@ class World {
             }
 
             if (keep) {
-                trees.push(p);
+                trees.push(new Tree(p, this.treeSize));
                 tryCount = 0;
             }
             tryCount++;
@@ -162,7 +162,7 @@ class World {
         return buildingBases;
     }
 
-    draw(ctx) {
+    draw(ctx, viewpoint) {
 
         // Road Paths
         for (const envelope of this.envelopes) {
@@ -184,7 +184,7 @@ class World {
 
         // Trees
         for (const tree of this.trees) {
-            tree.draw(ctx, { color: "rgba(0,0,0,0.5", size: this.treeSize })
+            tree.draw(ctx, viewpoint)
         }
     }
 }
