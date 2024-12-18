@@ -1,8 +1,8 @@
 class Tree {
-    constructor(center, size, heightCoeff = 0.3) {
+    constructor(center, size, height = 200) {
         this.center = center;
         this.size = size;
-        this.heightCoeff = heightCoeff;
+        this.height = height;
         this.base = this.#generateTreeGreen(center, size);
     }
 
@@ -23,17 +23,16 @@ class Tree {
     }
 
     draw(ctx, viewpoint) {
-        const diff = subtract(this.center, viewpoint);
-        const top = add(this.center, scale(diff, this.heightCoeff));
+        const top = getFake3dPoint(this.center, viewpoint, this.height);
 
         const levelCount = 7;
         for (let level = 0; level < levelCount; level++) {
             const t = level / (levelCount - 1);
             const point = lerp2D(this.center, top, t);
-            const greenColor = "rgb(30," + lerp(50, 200, t) + ", 70)";
+            const greenColor = "rgb(30," + lerp(50, 200, t) + ",70)";
             const greenSize = lerp(this.size, 40, t);
             const greenPoly = this.#generateTreeGreen(point, greenSize);
-            greenPoly.draw(ctx, { fill: greenColor, stroke: "rgba(0, 0, 0, 0)" });
+            greenPoly.draw(ctx, { fill: greenColor, stroke: "rgba(0,0,0,0)" });
         }
     }
 }
