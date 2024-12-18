@@ -8,13 +8,10 @@ class Point {
         return this.x == point.x && this.y == point.y;
     }
 
-    draw(ctx, { size = 18, color = "#000000", outline = false, fill = false, opacity = 100 } = {}) {
+    draw(ctx, { size = 18, color = "black", outline = false, fill = false } = {}) {
         const rad = size / 2;
         ctx.beginPath();
-        const r = parseInt(color[1] + color[2], 16);
-        const g = parseInt(color[3] + color[4], 16);
-        const b = parseInt(color[5] + color[6], 16);
-        ctx.fillStyle = `rgba(${ r }, ${ g }, ${ b }, ${ opacity })`;
+        ctx.fillStyle = color;
         ctx.arc(this.x, this.y, rad, 0, Math.PI * 2);
         ctx.fill();
         if (outline) {
