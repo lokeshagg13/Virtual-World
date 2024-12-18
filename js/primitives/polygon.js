@@ -61,6 +61,17 @@ class Polygon {
         }
     }
 
+    intersectsPolygon(polygon) {
+        for (let s1 of this.segments) {
+            for (let s2 of polygon.segments) {
+                if (getIntersection(s1.p1, s1.p2, s2.p1, s2.p2)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     containsSegment(segment) {
         // This works because the whole broken segment lies either completely inside or outside the polygon
         const midpoint = average(segment.p1, segment.p2);
