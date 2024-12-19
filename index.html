@@ -16,6 +16,7 @@
       <button id="startBtn" onclick="setMode('start')">🚙</button>
       <button id="parkingBtn" onclick="setMode('parking')">🅿️</button>
       <button id="targetBtn" onclick="setMode('target')">🎯</button>
+      <button id="yeildBtn" onclick="setMode('yeild')">⚠️</button>
     </div>
 
     <script src="js/world.js"></script>
@@ -23,6 +24,7 @@
     <script src="js/markings/marking.js"></script>
     <script src="js/markings/start.js"></script>
     <script src="js/markings/stop.js"></script>
+    <script src="js/markings/yeild.js"></script>
     <script src="js/markings/crossing.js"></script>
     <script src="js/markings/parking.js"></script>
     <script src="js/markings/target.js"></script>
@@ -30,6 +32,7 @@
     <script src="js/editors/markingEditor.js"></script>
     <script src="js/editors/startEditor.js"></script>
     <script src="js/editors/stopEditor.js"></script>
+    <script src="js/editors/yeildEditor.js"></script>
     <script src="js/editors/crossingEditor.js"></script>
     <script src="js/editors/parkingEditor.js"></script>
     <script src="js/editors/targetEditor.js"></script>
@@ -57,6 +60,7 @@
         graph: { button: graphBtn, editor: new GraphEditor(viewport, graph) },
         start: { button: startBtn, editor: new StartEditor(viewport, world) },
         stop: { button: stopBtn, editor: new StopEditor(viewport, world) },
+        yeild: { button: yeildBtn, editor: new YeildEditor(viewport, world) },
         crossing: {
           button: crossingBtn,
           editor: new CrossingEditor(viewport, world),
