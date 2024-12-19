@@ -1,5 +1,6 @@
 class World {
-    constructor(graph,
+    constructor(
+        graph,
         roadWidth = 100,
         roadRoundness = 10,
         buildingWidth = 150,
@@ -22,6 +23,8 @@ class World {
         this.laneGuides = [];
 
         this.markings = [];
+
+        this.frameCount = 0;
 
         this.generate();
     }
@@ -183,7 +186,74 @@ class World {
         return buildingBases.map((base) => new Building(base));
     }
 
+    // Intersections are graph points with two or more intersecting segments (or roads)
+    #getIntersections() {
+        const subset = [];
+        for (const point of this.graph.points) {
+            let degree = 0;
+            for (const segment of this.graph.segments) {
+                if (segment.includes(point)) {
+                    degree++
+                }
+            }
+
+            if (degree >= 2) {
+                subset.push(point);
+            }
+        }
+        return subset;
+    }
+
+    #updateTrafficLights() {
+        const trafficLights = this.markings.filter((m) => m instanceof TrafficLightMarking);
+        // Each road intersection has one corresponding control center and 
+        // a traffic light is linked to its nearest control center.
+        const controlCenters = [];
+        for (const trafficLight of trafficLights) {
+            // For each traffic light, get the nearest road intersection
+            const nearestIntersectionPoint = getNearestPoint(trafficLight.center, this.#getIntersections());
+            let controlCenter = controlCenters.find((c) => c.equals(nearestIntersectionPoint));
+            if (!controlCenter) {
+                controlCenter = new Point(
+                    nearestIntersectionPoint.x,
+                    nearestIntersectionPoint.y
+                );
+                controlCenter.trafficLights = [trafficLight];
+                controlCenters.push(controlCenter);
+            } else {
+                controlCenter.trafficLights.push(trafficLight);
+            }
+        }
+
+        const greenDuration = 2, yellowDuration = 1;
+        for (const controlCenter of controlCenters) {
+            controlCenter.ticks = controlCenter.trafficLights.length * (greenDuration + yellowDuration);
+        }
+        const tick = Math.floor(this.frameCount / 60);
+        for (const controlCenter of controlCenters) {
+            const cTick = tick % controlCenter.ticks;
+            // greenYellowIndex means the index of traffic light that must be activated
+            // at the current tick of the control center
+            const greenYellowIndex = Math.floor(
+                cTick / (greenDuration + yellowDuration)
+            );
+            const greenYellowState =
+                cTick % (greenDuration + yellowDuration) < greenDuration
+                    ? "green"
+                    : "yellow";
+            for (let i = 0; i < controlCenter.trafficLights.length; i++) {
+                if (i == greenYellowIndex) {
+                    controlCenter.trafficLights[i].state = greenYellowState;
+                } else {
+                    controlCenter.trafficLights[i].state = "red";
+                }
+            }
+        }
+        this.frameCount++
+    }
+
     draw(ctx, viewpoint) {
+        this.#updateTrafficLights();
 
         // Road Paths
         for (const envelope of this.envelopes) {
