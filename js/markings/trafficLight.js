@@ -1,16 +1,21 @@
 class TrafficLightMarking extends Marking {
     constructor(center, directionVector, width, height) {
-        super(center, directionVector, width, 25);
+        height = 25
+        super(center, directionVector, width, height);
         this.border = this.polygon.segments[0];
         this.state = "off";
     }
 
-    draw(ctx) {
+    draw(ctx, isLHT = true) {
+        if (isLHT) {
+            this.border = this.polygon.segments[2];
+        }
         const perp = perpendicular(this.directionVector);
         const line = new Segment(
             add(this.center, scale(perp, this.width / 2)),
             add(this.center, scale(perp, -this.width / 2))
         )
+
         const green = lerp2D(line.p1, line.p2, 0.25);
         const yellow = lerp2D(line.p1, line.p2, 0.5);
         const red = lerp2D(line.p1, line.p2, 0.75);

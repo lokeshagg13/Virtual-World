@@ -12,7 +12,7 @@ class Marking {
         this.polygon = new Envelope(this.support, width, 0).polygon;
     }
 
-    draw(ctx) {
+    draw(ctx, isLHT = true) {
         this.polygon.draw(ctx);
     }
 }

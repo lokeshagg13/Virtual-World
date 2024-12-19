@@ -7,8 +7,8 @@ class TargetEditor extends MarkingEditor {
         return new TargetMarking(
             center,
             directionVector,
-            world.roadWidth / 2,
-            world.roadWidth / 2
+            this.world.roadWidth / 2,
+            this.world.roadWidth / 2
         );
     }
 }

@@ -18,6 +18,41 @@
       <button id="targetBtn" onclick="setMode('target')">🎯</button>
       <button id="yeildBtn" onclick="setMode('yeild')">⚠️</button>
       <button id="trafficLightBtn" onclick="setMode('trafficLight')">🚦</button>
+      &nbsp;
+      <label>
+        <input type="checkbox" id="trafficToggle" />
+        <div class="slider-container">
+          <div class="slider-button"></div>
+          <span class="slider-label label-lht">LHT</span>
+          <span class="slider-label label-rht">RHT</span>
+        </div>
+      </label>
+    </div>
+
+    <!-- Modal -->
+    <div id="modal" class="modal">
+      <div class="modal-content">
+        <p>
+          Changing the traffic side will reset all elements on the map. Do you
+          want to proceed with this action?
+        </p>
+        <div class="modal-buttons">
+          <button
+            class="continue"
+            id="confirmBtn"
+            onclick="confirmTrafficSideChange()"
+          >
+            Continue
+          </button>
+          <button
+            class="cancel"
+            id="cancelBtn"
+            onclick="cancelTrafficSideChange()"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
     </div>
 
     <script src="js/world.js"></script>
@@ -57,7 +92,7 @@
       const graphString = localStorage.getItem("graph");
       const graphInfo = graphString ? JSON.parse(graphString) : null;
       const graph = graphInfo ? Graph.load(graphInfo) : new Graph();
-      const world = new World(graph);
+      const world = new World(graph, true);
       const viewport = new Viewport(myCanvas);
       const tools = {
         graph: { button: graphBtn, editor: new GraphEditor(viewport, graph) },
@@ -85,6 +120,15 @@
 
       setMode("graph");
       animate();
+
+      let pendingTrafficSideChange = false;
+      document
+        .getElementById("trafficToggle")
+        .addEventListener("change", (ev) => {
+          ev.target.checked = !ev.target.checked; // Prevent immediate change
+          pendingTrafficSideChange = ev.target.checked;
+          showTrafficSideChangeConfirmationModal();
+        });
 
       function animate() {
         viewport.reset();
@@ -123,6 +167,21 @@
           tool.button.style.filter = "grayscale(100%)";
           tool.editor.disable();
         }
+      }
+
+      function showTrafficSideChangeConfirmationModal() {
+        document.getElementById("modal").style.display = "flex";
+      }
+
+      function confirmTrafficSideChange() {
+        document.getElementById("modal").style.display = "none"; 
+        document.getElementById("trafficToggle").checked =
+          !pendingTrafficSideChange;
+        world.changeTrafficSide(pendingTrafficSideChange);
+      }
+
+      function cancelTrafficSideChange() {
+        document.getElementById("modal").style.display = "none";
       }
     </script>
   </body>

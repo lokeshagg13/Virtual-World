@@ -4,7 +4,7 @@ class CrossingMarking extends Marking {
         this.borders = [this.polygon.segments[0], this.polygon.segments[2]];
     }
 
-    draw(ctx) {
+    draw(ctx, isLHT = true) {
         const perp = perpendicular(this.directionVector);
         const line = new Segment(
             add(this.center, scale(perp, this.width / 2)),

@@ -4,15 +4,19 @@ class ParkingMarking extends Marking {
         this.borders = [this.polygon.segments[0], this.polygon.segments[2]];
     }
 
-    draw(ctx) {
+    draw(ctx, isLHT = true) {
         for (const border of this.borders) {
             border.draw(ctx, { width: 5, color: "white" });
         }
-        
+
         ctx.save();
         ctx.translate(this.center.x, this.center.y);
-        ctx.rotate(angle(this.directionVector));
-        
+        if (isLHT) {
+            ctx.rotate(-angle(this.directionVector));
+        } else {
+            ctx.rotate(angle(this.directionVector));
+        }
+
         ctx.beginPath();
         ctx.textBaseline = "middle";
         ctx.textAlign = "center";

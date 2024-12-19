@@ -86,7 +86,7 @@ class MarkingEditor {
 
     display() {
         if (this.intent) {
-            this.intent.draw(this.ctx);
+            this.intent.draw(this.ctx, this.world.isLHT);
         }
     }
 

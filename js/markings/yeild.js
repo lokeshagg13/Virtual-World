@@ -4,11 +4,18 @@ class YeildMarking extends Marking {
         this.border = this.polygon.segments[2];
     }
 
-    draw(ctx) {
+    draw(ctx, isLHT = true) {
+        if (isLHT) {
+            this.border = this.polygon.segments[0]
+        }
         this.border.draw(ctx, { width: 5, color: "white", dash: [2, 2] });
         ctx.save();
         ctx.translate(this.center.x, this.center.y);
-        ctx.rotate(angle(this.directionVector) - Math.PI / 2);
+        if (isLHT) {
+            ctx.rotate(angle(this.directionVector) + Math.PI / 2);
+        } else {
+            ctx.rotate(angle(this.directionVector) - Math.PI / 2);
+        }
         ctx.scale(1, 3);
 
         ctx.beginPath();

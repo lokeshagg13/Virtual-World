@@ -7,8 +7,8 @@ class CrossingEditor extends MarkingEditor {
         return new CrossingMarking(
             center,
             directionVector,
-            world.roadWidth,
-            world.roadWidth / 2
+            this.world.roadWidth,
+            this.world.roadWidth / 2
         );
     }
 }

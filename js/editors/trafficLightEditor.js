@@ -7,8 +7,8 @@ class TrafficLightEditor extends MarkingEditor {
         return new TrafficLightMarking(
             center,
             directionVector,
-            world.roadWidth / 2,
-            world.roadWidth / 2
+            this.world.roadWidth / 2,
+            this.world.roadWidth / 2
         );
     }
 }

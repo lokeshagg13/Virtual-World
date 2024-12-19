@@ -1,6 +1,7 @@
 class World {
     constructor(
         graph,
+        isLHT = true,
         roadWidth = 100,
         roadRoundness = 10,
         buildingWidth = 150,
@@ -9,6 +10,7 @@ class World {
         treeSize = 160
     ) {
         this.graph = graph;
+        this.isLHT = isLHT;
         this.roadWidth = roadWidth;
         this.roadRoundness = roadRoundness;
         this.buildingWidth = buildingWidth;
@@ -44,6 +46,11 @@ class World {
 
         this.laneGuides.length = 0;
         this.laneGuides.push(...this.#generateLaneGuides());
+    }
+
+    changeTrafficSide(isLHT) {
+        this.isLHT = isLHT;
+        this.markings.length = 0;
     }
 
     #generateLaneGuides() {
@@ -261,7 +268,7 @@ class World {
         }
         // Road Markings
         for (const marking of this.markings) {
-            marking.draw(ctx);
+            marking.draw(ctx, this.isLHT);
         }
         for (const segment of this.graph.segments) {
             segment.draw(ctx, { color: "#FFF", width: 4, dash: [10, 10] });
