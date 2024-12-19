@@ -10,10 +10,20 @@ class CrossingMarking {
             translate(center, angle(directionVector), -height / 2),
         )
         this.polygon = new Envelope(this.support, width, 0).polygon;
-        this.border = this.polygon.segments[2];
+        this.borders = [this.polygon.segments[0], this.polygon.segments[2]];
     }
 
     draw(ctx) {
         const perp = perpendicular(this.directionVector);
+        const line = new Segment(
+            add(this.center, scale(perp, this.width / 2)),
+            add(this.center, scale(perp, -this.width / 2))
+        );
+
+        line.draw(ctx, {
+            width: this.height,
+            color: "white",
+            dash: [11, 11]
+        })
     }
 }
