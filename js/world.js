@@ -31,6 +31,56 @@ class World {
         this.generate();
     }
 
+    static load(info) {
+        const world = new World(new Graph());
+        world.graph = Graph.load(info.graph);
+        world.isLHT = info.isLHT;
+        world.roadWidth = info.roadWidth;
+        world.roadRoundness = info.roadRoundness;
+        world.buildingWidth = info.buildingWidth;
+        world.buildingMinLength = info.buildingMinLength;
+        world.spacing = info.spacing;
+        world.treeSize = info.treeSize;
+
+        world.envelopes = info.envelopes.map(
+            (e) => Envelope.load(e)
+        );
+        world.roadBorders = info.roadBorders.map(
+            (rb) => new Segment(
+                new Point(
+                    rb.p1.x,
+                    rb.p1.y
+                ), new Point(
+                    rb.p2.x,
+                    rb.p2.y
+                )
+            )
+        );
+        world.buildings = info.buildings.map(
+            (b) => Building.load(b)
+        );
+        world.trees = info.trees.map(
+            (t) => Tree.load(t)
+        );
+        world.laneGuides = info.laneGuides.map(
+            (lg) => new Segment(
+                new Point(
+                    lg.p1.x,
+                    lg.p1.y
+                ), new Point(
+                    lg.p2.x,
+                    lg.p2.y
+                )
+            )
+        );
+        world.markings = info.markings.map(
+            (m) => Marking.load(m)
+        );
+        world.zoom = info.zoom;
+        world.offset = info.offset;
+        return world;
+    }
+
     generate() {
         this.envelopes.length = 0;
 

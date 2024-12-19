@@ -3,6 +3,7 @@ class StartMarking extends Marking {
         super(center, directionVector, width, height);
         this.img = new Image();
         this.img.src = "car_white.png";
+        this.type = "start";
     }
 
     draw(ctx, isLHT = true) {

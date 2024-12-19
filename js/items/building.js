@@ -1,7 +1,13 @@
 class Building {
     constructor(basePolygon, height = 200) {
-        this.base = basePolygon;
-        this.height = height;
+        if (basePolygon) {
+            this.base = basePolygon;
+            this.height = height;
+        }
+    }
+
+    static load(info) {
+        return new Building(Polygon.load(info.base), info.height);
     }
 
     draw(ctx, viewpoint) {

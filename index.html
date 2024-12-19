@@ -16,7 +16,7 @@
       <button id="startBtn" onclick="setMode('start')">🚙</button>
       <button id="parkingBtn" onclick="setMode('parking')">🅿️</button>
       <button id="targetBtn" onclick="setMode('target')">🎯</button>
-      <button id="yeildBtn" onclick="setMode('yeild')">⚠️</button>
+      <button id="yieldBtn" onclick="setMode('yield')">⚠️</button>
       <button id="trafficLightBtn" onclick="setMode('trafficLight')">🚦</button>
       &nbsp; &nbsp;
       <button id="disposeMarkingsBtn" onclick="disposeMarkings()">🗑️ M</button>
@@ -62,7 +62,7 @@
     <script src="js/markings/marking.js"></script>
     <script src="js/markings/start.js"></script>
     <script src="js/markings/stop.js"></script>
-    <script src="js/markings/yeild.js"></script>
+    <script src="js/markings/yield.js"></script>
     <script src="js/markings/crossing.js"></script>
     <script src="js/markings/parking.js"></script>
     <script src="js/markings/target.js"></script>
@@ -71,7 +71,7 @@
     <script src="js/editors/markingEditor.js"></script>
     <script src="js/editors/startEditor.js"></script>
     <script src="js/editors/stopEditor.js"></script>
-    <script src="js/editors/yeildEditor.js"></script>
+    <script src="js/editors/yieldEditor.js"></script>
     <script src="js/editors/crossingEditor.js"></script>
     <script src="js/editors/parkingEditor.js"></script>
     <script src="js/editors/targetEditor.js"></script>
@@ -91,16 +91,19 @@
 
       const ctx = myCanvas.getContext("2d");
 
-      const graphString = localStorage.getItem("graph");
-      const graphInfo = graphString ? JSON.parse(graphString) : null;
-      const graph = graphInfo ? Graph.load(graphInfo) : new Graph();
-      const world = new World(graph, true);
-      const viewport = new Viewport(myCanvas);
+      const worldString = localStorage.getItem("world");
+      const worldInfo = worldString ? JSON.parse(worldString) : null;
+      const world = worldInfo
+        ? World.load(worldInfo)
+        : new World(new Graph(), true);
+      const graph = world.graph;
+
+      const viewport = new Viewport(myCanvas, world.zoom, world.offset);
       const tools = {
         graph: { button: graphBtn, editor: new GraphEditor(viewport, graph) },
         start: { button: startBtn, editor: new StartEditor(viewport, world) },
         stop: { button: stopBtn, editor: new StopEditor(viewport, world) },
-        yeild: { button: yeildBtn, editor: new YeildEditor(viewport, world) },
+        yield: { button: yieldBtn, editor: new YieldEditor(viewport, world) },
         crossing: {
           button: crossingBtn,
           editor: new CrossingEditor(viewport, world),
@@ -157,7 +160,9 @@
       }
 
       function save() {
-        localStorage.setItem("graph", JSON.stringify(graph));
+        world.zoom = viewport.zoom;
+        world.offset = viewport.offset;
+        localStorage.setItem("world", JSON.stringify(world));
       }
 
       function setMode(mode) {

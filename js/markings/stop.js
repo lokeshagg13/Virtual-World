@@ -2,6 +2,7 @@ class StopMarking extends Marking {
     constructor(center, directionVector, width, height) {
         super(center, directionVector, width, height);
         this.border = this.polygon.segments[2];
+        this.type = "stop";
     }
 
     draw(ctx, isLHT = true) {

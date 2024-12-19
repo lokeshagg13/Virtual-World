@@ -9,6 +9,12 @@ class Polygon {
         }
     }
 
+    static load(info) {
+        return new Polygon(
+            info.points.map((p) => new Point(p.x, p.y))
+        );
+    }
+
     static union(polygons) {
         Polygon.multiBreak(polygons);
         const keptSegments = [];

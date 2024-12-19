@@ -1,10 +1,10 @@
-class YeildEditor extends MarkingEditor {
+class YieldEditor extends MarkingEditor {
     constructor(viewport, world) {
         super(viewport, world, world.laneGuides);
     }
 
     createMarking(center, directionVector) {
-        return new YeildMarking(
+        return new YieldMarking(
             center,
             directionVector,
             this.world.roadWidth / 2,

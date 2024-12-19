@@ -2,6 +2,7 @@ class ParkingMarking extends Marking {
     constructor(center, directionVector, width, height) {
         super(center, directionVector, width, height);
         this.borders = [this.polygon.segments[0], this.polygon.segments[2]];
+        this.type = "parking";
     }
 
     draw(ctx, isLHT = true) {

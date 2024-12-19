@@ -6,6 +6,16 @@ class Tree {
         this.base = this.#generateTreeGreen(center, size);
     }
 
+    static load(info) {
+        return new Tree(
+            new Point(
+                info.center.x,
+                info.center.y
+            ),
+            info.size,
+            info.height
+        );
+    }
     #generateTreeGreen(point, size) {
         const points = [];
         const radius = size / 2;

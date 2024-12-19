@@ -4,6 +4,7 @@ class TrafficLightMarking extends Marking {
         super(center, directionVector, width, height);
         this.border = this.polygon.segments[0];
         this.state = "off";
+        this.type = "trafficLight";
     }
 
     draw(ctx, isLHT = true) {
