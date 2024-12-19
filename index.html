@@ -9,11 +9,19 @@
     <div id="controls">
       <button onclick="dispose()">🗑️</button>
       <button onclick="save()">💾</button>
+      &nbsp;
+      <button id="graphBtn" onclick="setMode('graph')">🌐</button>
+      <button id="stopBtn" onclick="setMode('stop')">🛑</button>
+      <button id="crossingBtn" onclick="setMode('crossing')">🚶</button>
     </div>
 
     <script src="js/world.js"></script>
-    <script src="js/graphEditor.js"></script>
     <script src="js/viewport.js"></script>
+    <script src="js/markings/stop.js"></script>
+    <script src="js/markings/crossing.js"></script>
+    <script src="js/editors/graphEditor.js"></script>
+    <script src="js/editors/stopEditor.js"></script>
+    <script src="js/editors/crossingEditor.js"></script>
     <script src="js/items/tree.js"></script>
     <script src="js/items/building.js"></script>
     <script src="js/math/graph.js"></script>
@@ -35,8 +43,12 @@
       const world = new World(graph);
       const viewport = new Viewport(myCanvas);
       const graphEditor = new GraphEditor(viewport, graph);
+      const stopEditor = new StopEditor(viewport, world);
+      const crossingEditor = new CrossingEditor(viewport, world);
 
       let oldGraphHash = graph.hash();
+
+      setMode("graph");
       animate();
 
       function animate() {
@@ -49,15 +61,51 @@
         world.draw(ctx, viewpoint);
         ctx.globalAlpha = 0.3;
         graphEditor.display();
+        stopEditor.display();
+        crossingEditor.display();
         requestAnimationFrame(animate);
       }
 
       function dispose() {
         graphEditor.dispose();
+        world.markings.length = 0;
       }
 
       function save() {
         localStorage.setItem("graph", JSON.stringify(graph));
+      }
+
+      function setMode(mode) {
+        disableEditors();
+        switch (mode) {
+          case "graph":
+            graphBtn.style.backgroundColor = "white";
+            graphBtn.style.filter = "";
+            graphEditor.enable();
+            break;
+          case "stop":
+            stopBtn.style.backgroundColor = "white";
+            stopBtn.style.filter = "";
+            stopEditor.enable();
+            break;
+          case "crossing":
+            crossingBtn.style.backgroundColor = "white";
+            crossingBtn.style.filter = "";
+            crossingEditor.enable();
+            break;
+        }
+      }
+
+      function disableEditors() {
+        graphBtn.style.backgroundColor = "gray";
+        graphBtn.style.filter = "grayscale(100%)";
+        graphEditor.disable();
+        stopBtn.style.backgroundColor = "gray";
+        stopBtn.style.filter = "grayscale(100%)";
+        stopEditor.disable();
+        crossingBtn.style.backgroundColor = "gray";
+        crossingBtn.style.filter = "grayscale(100%)";
+        crossingEditor.disable();
       }
     </script>
   </body>
