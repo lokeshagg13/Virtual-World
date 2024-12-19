@@ -7,9 +7,9 @@
     <h1>Lokesh's World</h1>
     <canvas id="myCanvas"></canvas>
     <div id="controls">
-      <button onclick="dispose()">🗑️</button>
+      <button onclick="disposeEverything()">🗑️ All</button>
       <button onclick="save()">💾</button>
-      &nbsp;
+      &nbsp; &nbsp;
       <button id="graphBtn" onclick="setMode('graph')">🌐</button>
       <button id="stopBtn" onclick="setMode('stop')">🛑</button>
       <button id="crossingBtn" onclick="setMode('crossing')">🚶</button>
@@ -18,7 +18,9 @@
       <button id="targetBtn" onclick="setMode('target')">🎯</button>
       <button id="yeildBtn" onclick="setMode('yeild')">⚠️</button>
       <button id="trafficLightBtn" onclick="setMode('trafficLight')">🚦</button>
-      &nbsp;
+      &nbsp; &nbsp;
+      <button id="disposeMarkingsBtn" onclick="disposeMarkings()">🗑️ M</button>
+      &nbsp; &nbsp;
       <label>
         <input type="checkbox" id="trafficToggle" />
         <div class="slider-container">
@@ -145,8 +147,12 @@
         requestAnimationFrame(animate);
       }
 
-      function dispose() {
+      function disposeEverything() {
         tools["graph"].editor.dispose();
+        world.markings.length = 0;
+      }
+
+      function disposeMarkings() {
         world.markings.length = 0;
       }
 
@@ -174,7 +180,7 @@
       }
 
       function confirmTrafficSideChange() {
-        document.getElementById("modal").style.display = "none"; 
+        document.getElementById("modal").style.display = "none";
         document.getElementById("trafficToggle").checked =
           !pendingTrafficSideChange;
         world.changeTrafficSide(pendingTrafficSideChange);
