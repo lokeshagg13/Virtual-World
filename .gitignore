@@ -1,1 +1,3 @@
 node_modules
+db/worlds.json
+db/screenshots/*.png

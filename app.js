@@ -60,31 +60,37 @@ app.post('/api/save-world', async (req, res) => {
 
 app.post('/api/get-worlds', async (req, res) => {
     try {
-        let worldDataString = fs.readFileSync(path.join(__dirname, 'db', 'worlds.json'));
-        const worlds = worldDataString ? JSON.parse(worldDataString) : [];
-        res.json({ message: 'World strings retrieved successfully', data: worldData });
+        let worldDataString = fs.readFileSync(worldJSONPath, 'utf8');
+        let worlds = worldDataString !== '' ? JSON.parse(worldDataString) : [];
+        worlds = worlds.map((world) => ({
+            id: world.id,
+            screenshot: world.screenshot
+        }));
+        res.json({ message: 'Worlds retrieved successfully', worlds: worlds });
     } catch (error) {
+        console.log(error)
         res.status(500).json({ error: 'Internal Server Error', details: error.message });
     }
 })
 
 // Load the "world" string from the database
-app.get('/api/load-world', async (req, res) => {
+app.get('/api/load-world/:worldId', async (req, res) => {
     try {
-        let worldDataString = fs.readFileSync(path.join(__dirname, 'db', 'worlds.json'));
-        const worlds = worldDataString ? JSON.parse(worldDataString) : [];
+        let worldDataString = fs.readFileSync(worldJSONPath, 'utf8');
+        const worlds = worldDataString !== '' ? JSON.parse(worldDataString) : [];
 
         if (worlds.length === 0) {
             return res.status(404).json({ error: 'No saved worlds.' });
         }
 
-        const worldId = req.params['id'];
+        const worldId = req.params['worldId'];
         const world = worlds.filter((world) => world.id == worldId);
         if (world.length == 0) {
-            return res.json({ message: 'World not found' })
+            return res.status(404).json({ message: 'World not found' })
         }
-        res.json({ message: 'World retrieved successfully', data: world });
+        res.json({ message: 'World retrieved successfully', world: world[0] });
     } catch (error) {
+        console.log(error)
         res.status(500).json({ error: 'Internal Server Error', details: error.message });
     }
 });

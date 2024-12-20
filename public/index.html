@@ -1,38 +1,135 @@
 <html>
   <head>
     <title>AI Virtual World</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
+      integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+      crossorigin="anonymous"
+    />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
     <h1>Lokesh's World</h1>
     <canvas id="myCanvas"></canvas>
     <div id="controls">
-      <button onclick="disposeEverything()">🗑️ All</button>
-      <button onclick="save()">💾</button>
-      <label for="fileInput" class="file-input-label">
+      <button
+        type="button"
+        onclick="disposeEverything()"
+        data-toggle="tooltip"
+        data-placement="top"
+        title="Clear Everything"
+      >
+        🗑️ All
+      </button>
+      <button
+        onclick="saveWorldData()"
+        data-toggle="tooltip"
+        data-placement="top"
+        title="Save World"
+      >
+        💾
+      </button>
+      <button
+        onclick="showSelectWorldModal()"
+        data-toggle="tooltip"
+        data-placement="top"
+        title="Load World"
+      >
         📂
-        <input
-          type="file"
-          id="fileInput"
-          accept=".world"
-          onchange="load(event)"
-        />
-      </label>
+      </button>
       &nbsp; &nbsp;
-      <button id="graphBtn" onclick="setMode('graph')">🌐</button>
-      <button id="stopBtn" onclick="setMode('stop')">🛑</button>
-      <button id="crossingBtn" onclick="setMode('crossing')">🚶</button>
-      <button id="startBtn" onclick="setMode('start')">🚙</button>
-      <button id="parkingBtn" onclick="setMode('parking')">🅿️</button>
-      <button id="targetBtn" onclick="setMode('target')">🎯</button>
-      <button id="yieldBtn" onclick="setMode('yield')">⚠️</button>
-      <button id="trafficLightBtn" onclick="setMode('trafficLight')">🚦</button>
+      <button
+        id="graphBtn"
+        onclick="setMode('graph')"
+        data-toggle="tooltip"
+        data-placement="top"
+        title="Graph Editor Mode"
+      >
+        🌐
+      </button>
+      <button
+        id="stopBtn"
+        onclick="setMode('stop')"
+        data-toggle="tooltip"
+        data-placement="top"
+        title="Stops Editor Mode"
+      >
+        🛑
+      </button>
+      <button
+        id="crossingBtn"
+        onclick="setMode('crossing')"
+        data-toggle="tooltip"
+        data-placement="top"
+        title="Crossing Editor Mode"
+      >
+        🚶
+      </button>
+      <button
+        id="startBtn"
+        onclick="setMode('start')"
+        data-toggle="tooltip"
+        data-placement="top"
+        title="Car Editor Mode"
+      >
+        🚙
+      </button>
+      <button
+        id="parkingBtn"
+        onclick="setMode('parking')"
+        data-toggle="tooltip"
+        data-placement="top"
+        title="Parking Editor Mode"
+      >
+        🅿️
+      </button>
+      <button
+        id="targetBtn"
+        onclick="setMode('target')"
+        data-toggle="tooltip"
+        data-placement="top"
+        title="Target Editor Mode"
+      >
+        🎯
+      </button>
+      <button
+        id="yieldBtn"
+        onclick="setMode('yield')"
+        data-toggle="tooltip"
+        data-placement="top"
+        title="Yield Editor Mode"
+      >
+        ⚠️
+      </button>
+      <button
+        id="trafficLightBtn"
+        onclick="setMode('trafficLight')"
+        data-toggle="tooltip"
+        data-placement="top"
+        title="Light Editor Mode"
+      >
+        🚦
+      </button>
       &nbsp; &nbsp;
-      <button id="disposeMarkingsBtn" onclick="disposeMarkings()">🗑️ M</button>
+      <button
+        id="disposeMarkingsBtn"
+        onclick="disposeMarkings()"
+        data-toggle="tooltip"
+        data-placement="top"
+        title="Delete Markings"
+      >
+        🗑️ M
+      </button>
       &nbsp; &nbsp;
       <label>
         <input type="checkbox" id="trafficToggle" />
-        <div class="slider-container">
+        <div
+          class="slider-container"
+          data-toggle="tooltip"
+          data-placement="top"
+          title="Left-Hand/Right-Hand Traffic"
+        >
           <div class="slider-button"></div>
           <span class="slider-label label-lht">LHT</span>
           <span class="slider-label label-rht">RHT</span>
@@ -40,28 +137,144 @@
       </label>
     </div>
 
-    <!-- Modal -->
-    <div id="modal" class="modal">
-      <div class="modal-content">
-        <p>
-          Changing the traffic side will reset all elements on the map. Do you
-          want to proceed with this action?
-        </p>
-        <div class="modal-buttons">
-          <button
-            class="continue"
-            id="confirmBtn"
-            onclick="confirmTrafficSideChange()"
-          >
-            Continue
-          </button>
-          <button
-            class="cancel"
-            id="cancelBtn"
-            onclick="cancelTrafficSideChange()"
-          >
-            Cancel
-          </button>
+    <!-- Modals -->
+
+    <!-- Modal for loading -->
+    <div id="loadingModal" class="modal" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-body">
+            <img src="images/loading.gif" alt="Loading World" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal for errors -->
+    <div id="errorModal" class="modal" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Error</h5>
+            <button
+              type="button"
+              class="close"
+              data-dismiss="modal"
+              aria-label="Close"
+              onclick="hideErrorModal()"
+            >
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal for changing Traffic Side -->
+    <div id="trafficSideChangeModal" class="modal" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Confirm Traffic Side Change</h5>
+            <button
+              type="button"
+              class="close"
+              data-dismiss="modal"
+              aria-label="Close"
+              onclick="cancelTrafficSideChange()"
+            >
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <p>
+              Changing the traffic side will reset all elements on the map. Do
+              you want to proceed with this action?
+            </p>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-primary"
+              onclick="confirmTrafficSideChange()"
+            >
+              Continue
+            </button>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-dismiss="modal"
+              onclick="cancelTrafficSideChange()"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal for world saved success -->
+    <div id="worldSavedModal" class="modal" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Success</h5>
+            <button
+              type="button"
+              class="close"
+              data-dismiss="modal"
+              aria-label="Close"
+              onclick="hideWorldSavedModal()"
+            >
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <p>World saved successfully.</p>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-primary"
+              onclick="hideWorldSavedModal()"
+            >
+              Ok
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal for selecting a world -->
+    <div id="selectWorldModal" class="modal" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="selectWorldModalTitle">Select World</h5>
+            <button
+              type="button"
+              class="close"
+              data-dismiss="modal"
+              aria-label="Close"
+              onclick="hideSelectWorldModal()"
+            >
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div id="worldList" class="world-list"></div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-dismiss="modal"
+              onclick="hideSelectWorldModal()"
+            >
+              Close
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -168,11 +381,10 @@
         world.markings.length = 0;
       }
 
-      function save() {
+      function saveWorldData() {
         world.zoom = viewport.zoom;
         world.offset = viewport.offset;
         world.screenshot = myCanvas.toDataURL("image/png");
-        console.log(world.screenshot);
         // Send the API request
         fetch("http://localhost:3000/api/save-world", {
           method: "POST",
@@ -192,33 +404,44 @@
             return response.json();
           })
           .then((data) => {
-            console.log("World saved successfully:", data);
-            alert("World saved!");
+            showWorldSavedModal();
           })
           .catch((error) => {
             console.error("Error saving world:", error);
+            showErrorModal("Error saving the world.");
           });
 
         localStorage.setItem("world", JSON.stringify(world));
       }
 
-      function load(ev) {
-        const file = ev.target.files[0];
-        if (!file) {
-          alert("No file selected.");
-          return;
-        }
-
-        const reader = new FileReader();
-        reader.readAsText(file);
-
-        reader.onload = (ev) => {
-          const fileContent = ev.target.result;
-          const jsonData = JSON.parse(fileContent);
-          world = World.load(jsonData);
-          localStorage.setItem("world", JSON.stringify(world));
-          location.reload();
-        };
+      function loadWorldData(worldId) {
+        fetch(`http://localhost:3000/api/load-world/${worldId}`, {
+          method: "GET",
+        })
+          .then((response) => {
+            if (!response.ok) {
+              return response.json().then((data) => {
+                throw new Error(data.details || "Failed to fetch worlds");
+              });
+            }
+            return response.json();
+          })
+          .then((data) => {
+            const selectedWorld = data.world;
+            world = World.load(selectedWorld); // Load the world data
+            localStorage.setItem("world", JSON.stringify(world));
+            document.getElementById("selectWorldModal").style.display = "none";
+            showLoadingModal();
+            setTimeout(() => {
+              location.reload();
+              hideLoadingModal();
+            }, 3000);
+          })
+          .catch((error) => {
+            console.error("Error loading world:", error);
+            document.getElementById("selectWorldModal").style.display = "none";
+            showErrorModal("Error loading the world.");
+          });
       }
 
       function setMode(mode) {
@@ -237,18 +460,97 @@
       }
 
       function showTrafficSideChangeConfirmationModal() {
-        document.getElementById("modal").style.display = "flex";
+        document.getElementById("trafficSideChangeModal").style.display =
+          "flex";
       }
 
       function confirmTrafficSideChange() {
-        document.getElementById("modal").style.display = "none";
+        document.getElementById("trafficSideChangeModal").style.display =
+          "none";
         document.getElementById("trafficToggle").checked =
           !pendingTrafficSideChange;
         world.changeTrafficSide(pendingTrafficSideChange);
       }
 
       function cancelTrafficSideChange() {
-        document.getElementById("modal").style.display = "none";
+        document.getElementById("trafficSideChangeModal").style.display =
+          "none";
+      }
+
+      function showWorldSavedModal() {
+        document.getElementById("worldSavedModal").style.display = "flex";
+      }
+
+      function hideWorldSavedModal() {
+        document.getElementById("worldSavedModal").style.display = "none";
+      }
+
+      function showErrorModal(message) {
+        document.querySelector("#errorModal .modal-body").innerHTML =
+          "<p>" + message + "</p>";
+        document.getElementById("errorModal").style.display = "flex";
+      }
+
+      function hideErrorModal() {
+        document.getElementById("errorModal").style.display = "none";
+      }
+
+      function showLoadingModal() {
+        document.getElementById("loadingModal").style.display = "flex";
+      }
+
+      function hideLoadingModal() {
+        document.getElementById("loadingModal").style.display = "none";
+      }
+
+      function showSelectWorldModal() {
+        // Fetch the list of worlds from the server
+        fetch("http://localhost:3000/api/get-worlds", {
+          method: "POST",
+        })
+          .then((response) => {
+            if (!response.ok) {
+              return response.json().then((data) => {
+                throw new Error(data.details || "Failed to fetch worlds");
+              });
+            }
+            return response.json();
+          })
+          .then((data) => {
+            const worldListContainer = document.getElementById("worldList");
+            worldListContainer.innerHTML = ""; // Clear existing content
+
+            if (data.worlds && data.worlds.length > 0) {
+              data.worlds.forEach((world) => {
+                // Create elements to display the world
+                const worldItem = document.createElement("div");
+                worldItem.classList.add("world-item");
+                worldItem.innerHTML = `
+                  <img src="${world.screenshot}" alt="World ${world.id}" />
+                  <h4>World ${world.id}</h4>
+                `;
+
+                // Add event listener to handle world selection
+                worldItem.addEventListener("click", () => {
+                  loadWorldData(world.id);
+                });
+
+                // Append the world item to the container
+                worldListContainer.appendChild(worldItem);
+              });
+            } else {
+              worldListContainer.innerHTML = "<p>No saved worlds found.</p>";
+            }
+            document.getElementById("selectWorldModal").style.display = "flex";
+          })
+          .catch((error) => {
+            console.error("Error fetching worlds:", error);
+            showErrorModal("Error fetching the saved worlds.");
+          });
+      }
+
+      function hideSelectWorldModal() {
+        document.getElementById("selectWorldModal").style.display = "none";
       }
     </script>
   </body>
