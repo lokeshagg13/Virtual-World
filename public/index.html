@@ -9,6 +9,15 @@
     <div id="controls">
       <button onclick="disposeEverything()">🗑️ All</button>
       <button onclick="save()">💾</button>
+      <label for="fileInput" class="file-input-label">
+        📂
+        <input
+          type="file"
+          id="fileInput"
+          accept=".world"
+          onchange="load(event)"
+        />
+      </label>
       &nbsp; &nbsp;
       <button id="graphBtn" onclick="setMode('graph')">🌐</button>
       <button id="stopBtn" onclick="setMode('stop')">🛑</button>
@@ -93,7 +102,7 @@
 
       const worldString = localStorage.getItem("world");
       const worldInfo = worldString ? JSON.parse(worldString) : null;
-      const world = worldInfo
+      let world = worldInfo
         ? World.load(worldInfo)
         : new World(new Graph(), true);
       const graph = world.graph;
@@ -160,9 +169,38 @@
       }
 
       function save() {
+        const element = document.createElement("a");
+        element.setAttribute(
+          "href",
+          "data:application/json;charset=utf-8," +
+            encodeURIComponent(JSON.stringify(world))
+        );
+
+        const fileName = "name.world";
+        element.setAttribute("download", fileName);
+        element.click();
         world.zoom = viewport.zoom;
         world.offset = viewport.offset;
         localStorage.setItem("world", JSON.stringify(world));
+      }
+
+      function load(ev) {
+        const file = ev.target.files[0];
+        if (!file) {
+          alert("No file selected.");
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.readAsText(file);
+
+        reader.onload = (ev) => {
+          const fileContent = ev.target.result;
+          const jsonData = JSON.parse(fileContent);
+          world = World.load(jsonData);
+          localStorage.setItem("world", JSON.stringify(world));
+          location.reload();
+        };
       }
 
       function setMode(mode) {

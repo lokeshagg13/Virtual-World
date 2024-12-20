@@ -16,7 +16,8 @@ h1 {
   margin-top: 25px;
 }
 
-button {
+button,
+.file-input-label {
   background-color: white;
   font-size: 20px;
   padding: 5px 7px 7px 5px;
@@ -24,6 +25,10 @@ button {
   border-radius: 5px;
   text-shadow: 1px 1px black;
   cursor: pointer;
+}
+
+#fileInput {
+  display: none;
 }
 
 .slider-container {
