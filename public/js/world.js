@@ -269,6 +269,7 @@ class World {
         for (const trafficLight of trafficLights) {
             // For each traffic light, get the nearest road intersection
             const nearestIntersectionPoint = getNearestPoint(trafficLight.center, this.#getIntersections());
+            if (!nearestIntersectionPoint) continue;
             let controlCenter = controlCenters.find((c) => c.equals(nearestIntersectionPoint));
             if (!controlCenter) {
                 controlCenter = new Point(
@@ -309,7 +310,25 @@ class World {
         this.frameCount++
     }
 
+    #removeDisconnectedMarkings() {
+        for (let i = 0; i < this.markings.length; i++) {
+            const markingCenter = this.markings[i].center;
+            let isDisconnected = true;
+            for (const envelope of this.envelopes) {
+                if (envelope.polygon.containsPoint(markingCenter)) {
+                    isDisconnected = false;
+                    break;
+                }
+            }
+            if (isDisconnected) {
+                this.markings.splice(i, 1);
+                i--;
+            }
+        }
+    }
+
     draw(ctx, viewpoint) {
+        this.#removeDisconnectedMarkings();
         this.#updateTrafficLights();
 
         // Road Paths
@@ -320,6 +339,7 @@ class World {
         for (const marking of this.markings) {
             marking.draw(ctx, this.isLHT);
         }
+        // Road Dividers
         for (const segment of this.graph.segments) {
             segment.draw(ctx, { color: "#FFF", width: 4, dash: [10, 10] });
         }
