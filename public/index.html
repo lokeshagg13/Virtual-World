@@ -169,18 +169,36 @@
       }
 
       function save() {
-        const element = document.createElement("a");
-        element.setAttribute(
-          "href",
-          "data:application/json;charset=utf-8," +
-            encodeURIComponent(JSON.stringify(world))
-        );
-
-        const fileName = "name.world";
-        element.setAttribute("download", fileName);
-        element.click();
         world.zoom = viewport.zoom;
         world.offset = viewport.offset;
+        world.screenshot = myCanvas.toDataURL("image/png");
+        console.log(world.screenshot);
+        // Send the API request
+        fetch("http://localhost:3000/api/save-world", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            world,
+          }),
+        })
+          .then((response) => {
+            if (!response.ok) {
+              return response.json().then((data) => {
+                throw new Error(data.details || "Failed to save world");
+              });
+            }
+            return response.json();
+          })
+          .then((data) => {
+            console.log("World saved successfully:", data);
+            alert("World saved!");
+          })
+          .catch((error) => {
+            console.error("Error saving world:", error);
+          });
+
         localStorage.setItem("world", JSON.stringify(world));
       }
 

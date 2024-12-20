@@ -1,30 +1,17 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 const app = express();
 const PORT = 3000;
 
 // Middleware
-app.use(express.json());
+app.use(express.json({ limit: '100mb' }));
+app.use(express.urlencoded({ limit: '100mb', extended: true }));
 app.use(cors());
 
 // Serve Static Files
 app.use(express.static(path.join(__dirname, 'public'))); // Serve static files from the "public" directory
-
-// MongoDB Connection
-mongoose.connect('mongodb://127.0.0.1:27017/worldDB', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-})
-    .then(() => console.log('MongoDB connected'))
-    .catch(err => console.error('Connection error:', err));
-
-// Schema and Model
-const worldSchema = new mongoose.Schema({
-    worldString: { type: String, required: true },
-});
-const World = mongoose.model('World', worldSchema);
 
 // Serve Frontend
 app.get('/index.html', (req, res) => {
@@ -33,31 +20,70 @@ app.get('/index.html', (req, res) => {
 
 // API Endpoints
 
+const worldJSONPath = path.join(__dirname, 'db', 'worlds.json');
+if (!fs.existsSync(worldJSONPath)) {
+    fs.writeFileSync(worldJSONPath, '');
+}
+const worldScreenshotsFolderPath = path.join(__dirname, 'db', 'screenshots');
+if (!fs.existsSync(worldScreenshotsFolderPath)) {
+    fs.mkdirSync(worldScreenshotsFolderPath);
+}
+
 // Save "world" string to the database
 app.post('/api/save-world', async (req, res) => {
     try {
-        const { worldString } = req.body;
-        if (!worldString) {
+        const { world: worldToSave } = req.body;
+        if (!worldToSave) {
             return res.status(400).json({ error: 'worldString is required' });
         }
 
-        const world = new World({ worldString });
-        await world.save();
-        res.status(201).json({ message: 'World saved successfully', data: world });
+        // Read world data json file
+        let worldDataString = fs.readFileSync(worldJSONPath, 'utf8');
+        const worlds = worldDataString !== '' ? JSON.parse(worldDataString) : [];
+        worldToSave.id = worlds.length;
+
+        // Save screenshot file
+        const base64Data = worldToSave.screenshot.replace(/^data:image\/png;base64,/, '');
+        const screenshotPath = path.join(worldScreenshotsFolderPath, 'World_' + worldToSave.id + '.png')
+        fs.writeFileSync(screenshotPath, base64Data, 'base64');
+
+        // Add textual data to the json file
+        worlds.push(worldToSave);
+        fs.writeFileSync(worldJSONPath, JSON.stringify(worlds, '', 4))
+
+        res.status(201).json({ message: 'World saved successfully', data: worldToSave });
     } catch (error) {
+        console.log(error)
         res.status(500).json({ error: 'Internal Server Error', details: error.message });
     }
 });
 
+app.post('/api/get-worlds', async (req, res) => {
+    try {
+        let worldDataString = fs.readFileSync(path.join(__dirname, 'db', 'worlds.json'));
+        const worlds = worldDataString ? JSON.parse(worldDataString) : [];
+        res.json({ message: 'World strings retrieved successfully', data: worldData });
+    } catch (error) {
+        res.status(500).json({ error: 'Internal Server Error', details: error.message });
+    }
+})
+
 // Load the "world" string from the database
 app.get('/api/load-world', async (req, res) => {
     try {
-        const worlds = await World.find();
+        let worldDataString = fs.readFileSync(path.join(__dirname, 'db', 'worlds.json'));
+        const worlds = worldDataString ? JSON.parse(worldDataString) : [];
+
         if (worlds.length === 0) {
-            return res.status(404).json({ error: 'No world strings found' });
+            return res.status(404).json({ error: 'No saved worlds.' });
         }
 
-        res.json({ message: 'World strings retrieved successfully', data: worlds });
+        const worldId = req.params['id'];
+        const world = worlds.filter((world) => world.id == worldId);
+        if (world.length == 0) {
+            return res.json({ message: 'World not found' })
+        }
+        res.json({ message: 'World retrieved successfully', data: world });
     } catch (error) {
         res.status(500).json({ error: 'Internal Server Error', details: error.message });
     }
