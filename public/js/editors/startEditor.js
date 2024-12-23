@@ -7,8 +7,8 @@ class StartEditor extends MarkingEditor {
         return new StartMarking(
             center,
             directionVector,
-            this.world.roadWidth * 0.8,
-            this.world.roadWidth / 2,
+            this.world.roadWidth * 0.4,
+            this.world.roadWidth / 4,
             isLHT
         );
     }

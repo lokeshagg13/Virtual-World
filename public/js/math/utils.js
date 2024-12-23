@@ -105,10 +105,50 @@ function getRandomColor() {
     return "hsl(" + hue + ", 100%, 60%";
 }
 
-
 function getFake3dPoint(point, viewPoint, height) {
     const dir = normalize(subtract(point, viewPoint));
     const dist = distance(point, viewPoint);
     const scaler = Math.atan(dist / 300) / (Math.PI / 2);
     return add(point, scale(dir, height * scaler));
+}
+
+function polygonSegmentIntersect(polygon, segment) {
+    for (let i = 0; i < polygon.points.length; i++) {
+        const touch = getIntersection(
+            polygon.points[i],
+            polygon.points[(i + 1) % polygon.points.length],
+            segment.p1,
+            segment.p2
+        );
+        if (touch) {
+            return true;
+        }
+
+    }
+    return false;
+}
+
+function polygonsIntersect(poly1, poly2) {
+    for (let i = 0; i < poly1.points.length; i++) {
+        for (let j = 0; j < poly2.points.length; j++) {
+            const touch = getIntersection(
+                poly1.points[i],
+                poly1.points[(i + 1) % poly1.points.length],
+                poly2.points[j],
+                poly2.points[(j + 1) % poly2.points.length],
+            );
+            if (touch) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+function getRGBA(value) {
+    const alpha = Math.abs(value);
+    const R = value < 0 ? 0 : 255;
+    const G = R;
+    const B = value > 0 ? 0 : 255;
+    return "rgba(" + R + "," + G + "," + B + "," + alpha + ")";
 }

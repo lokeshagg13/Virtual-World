@@ -1,13 +1,13 @@
 class Car {
-    constructor(center, width, height, angle, controlType = "AI", maxSpeed = 3) {
+    constructor(center, angle, controlType = "AI", maxSpeed = 3) {
         this.center = center;
-        this.width = width;
-        this.height = height;
         this.angle = angle;
+        this.maxSpeed = maxSpeed;
+
+        this.damaged = false;
 
         this.speed = 0;
         this.acceleration = 0.2;
-        this.maxSpeed = maxSpeed;
         this.friction = 0.05;
 
         this.controls = {
@@ -24,10 +24,11 @@ class Car {
 
         this.img = new Image();
         this.img.src = "images/cars/car_white.png";
-        this.polygon = []
+        this.width = this.img.width / 2;
+        this.height = this.img.height / 2;
+        this.polygon = this.#createPolygonAroundCar();
 
         this.#addKeyboardListeners();
-
     }
 
     #addKeyboardListeners() {
@@ -111,17 +112,46 @@ class Car {
         this.center = translate(this.center, this.angle - Math.PI / 2, this.speed);
     }
 
+    #createPolygonAroundCar() {
+        const points = [];
+        const polygonWidth = this.height;
+        const polygonHeight = this.width;
+        const radius = Math.hypot(polygonWidth, polygonHeight) / 2;
+        const alpha = Math.atan2(polygonWidth, polygonHeight);
+        points.push(translate(this.center, this.angle + alpha, -radius));
+        points.push(translate(this.center, this.angle - alpha, radius));
+        points.push(translate(this.center, this.angle + alpha, radius));
+        points.push(translate(this.center, this.angle - alpha, -radius));
+        return new Polygon(points);
+    }
+
+    #assessDamage(roadBorders) {
+        for (let i = 0; i < roadBorders.length; i++) {
+            if (polygonSegmentIntersect(this.polygon, roadBorders[i])) {
+                console.log('Damaged')
+                return true;
+            }
+        }
+        return false;
+    }
+
     update(roadBorders) {
-        this.#move();
+        if (!this.damaged) {
+            this.#move();
+            this.polygon = this.#createPolygonAroundCar();
+            this.damaged = this.#assessDamage(roadBorders);
+        }
         if (this.sensor) {
             this.sensor.update(roadBorders);
         }
     }
 
     draw(ctx, drawSensor = false) {
-        if (this.sensor && drawSensor) {
+        if (!this.damaged && this.sensor && drawSensor) {
             this.sensor.draw(ctx);
         }
+
+        // this.polygon.draw(ctx)
 
         ctx.save();
         ctx.translate(this.center.x, this.center.y);
