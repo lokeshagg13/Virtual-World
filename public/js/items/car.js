@@ -1,41 +1,73 @@
 class Car {
-    constructor(x, y, width, height, angle, color = "blue", maxSpeed = 3) {
+    constructor(x, y, width, height, angle, maxSpeed = 3) {
         this.x = x;
         this.y = y;
         this.width = width;
         this.height = height;
-
         this.angle = angle;
+
         this.speed = 0;
         this.acceleration = 0.2;
         this.maxSpeed = maxSpeed;
         this.friction = 0.05;
 
-        this.controls = new Controls();
+        this.controls = {
+            forward: false,
+            left: false,
+            right: false,
+            reverse: false
+        };
+
         this.img = new Image();
         this.img.src = "images/cars/car_white.png";
         this.polygon = []
 
-        // this.mask = document.createElement("canvas");
-        // this.mask.width = width;
-        // this.mask.height = height;
+        this.#addKeyboardListeners();
 
-        // const maskCtx = this.mask.getContext("2d");
-        // this.img.onload = () => {
-        //     maskCtx.fillStyle = color;
-        //     maskCtx.rect(0, 0, this.width, this.height);
-        //     maskCtx.fill();
-
-        //     maskCtx.globalCompositeOperation = "destination-atop";
-        //     maskCtx.drawImage(this.img, 0, 0, this.width, this.height);
-        // }
     }
 
-    update() {
-        this.#move();
+    #addKeyboardListeners() {
+        this.boundKeyDown = this.#handleKeyDown.bind(this);
+        this.boundKeyUp = this.#handleKeyUp.bind(this);
+        document.addEventListener('keydown', this.boundKeyDown);
+        document.addEventListener('keyup', this.boundKeyUp);
     }
 
-    #move() {
+    #handleKeyDown(ev) {
+        switch (ev.key) {
+            case "ArrowLeft":
+                this.controls.left = true;
+                break;
+            case "ArrowRight":
+                this.controls.right = true;
+                break;
+            case "ArrowUp":
+                this.controls.forward = true;
+                break;
+            case "ArrowDown":
+                this.controls.reverse = true;
+                break;
+        }
+    }
+
+    #handleKeyUp(ev) {
+        switch (ev.key) {
+            case "ArrowLeft":
+                this.controls.left = false;
+                break;
+            case "ArrowRight":
+                this.controls.right = false;
+                break;
+            case "ArrowUp":
+                this.controls.forward = false;
+                break;
+            case "ArrowDown":
+                this.controls.reverse = false;
+                break;
+        }
+    }
+
+    #move(isLHT) {
         if (this.controls.forward) {
             this.speed += this.acceleration;
         }
@@ -70,25 +102,27 @@ class Car {
             }
         }
 
-        this.x -= Math.sin(this.angle) * this.speed;
-        this.y -= Math.cos(this.angle) * this.speed;
+        let calcAngle = this.angle;
+        if (isLHT) {
+            calcAngle += Math.PI
+        }
+        this.x -= Math.sin(calcAngle) * this.speed;
+        this.y -= Math.cos(calcAngle) * this.speed;
+    }
+
+    update(isLHT) {
+        this.#move(isLHT);
     }
 
     draw(ctx, isLHT = true) {
         ctx.save();
         ctx.translate(this.x, this.y);
         if (isLHT) {
-            ctx.rotate(this.angle + Math.PI / 2);
+            ctx.rotate(-this.angle + Math.PI);
         } else {
-            ctx.rotate(this.angle - Math.PI / 2);
+            ctx.rotate(-this.angle);
         }
-        // ctx.drawImage(this.mask,
-        //     -this.width / 2,
-        //     -this.height / 2,
-        //     this.width,
-        //     this.height
-        // );
-        // ctx.globalCompositeOperation = "multiply";
+
         ctx.drawImage(this.img,
             -this.width / 2,
             -this.height / 2,

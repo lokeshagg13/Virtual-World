@@ -310,6 +310,13 @@ class World {
         this.frameCount++
     }
 
+    #updateCars() {
+        const cars = this.markings.filter((marking) => marking instanceof StartMarking).map((marking) => marking.car);
+        for (const car of cars) {
+            car.update(this.isLHT);
+        }
+    }
+
     #removeDisconnectedMarkings() {
         for (let i = 0; i < this.markings.length; i++) {
             const markingCenter = this.markings[i].center;
@@ -330,6 +337,7 @@ class World {
     draw(ctx, viewpoint) {
         this.#removeDisconnectedMarkings();
         this.#updateTrafficLights();
+        this.#updateCars();
 
         // Road Paths
         for (const envelope of this.envelopes) {

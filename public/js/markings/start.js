@@ -1,7 +1,7 @@
 class StartMarking extends Marking {
     constructor(center, directionVector, width, height) {
         super(center, directionVector, width, height);
-        this.car = new Car(center.x, center.y, width, height, angle(this.directionVector));
+        this.car = new Car(center.x, center.y, width, height, -angle(directionVector) + Math.PI / 2);
         this.type = "start";
     }
 
