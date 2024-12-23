@@ -67,7 +67,7 @@ class SimulationEditor {
                             NeuralNetwork.mutate(startMarking.car.brain, 0.1)
                         }
                     }
-                    world.markings.push(startMarking);
+                    this.world.markings.push(startMarking);
                 }
                 this.running = true;
                 this.intent = null;

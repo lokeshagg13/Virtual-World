@@ -10,8 +10,6 @@ class MarkingEditor {
         this.intent = null;
 
         this.targetSegments = targetSegments;
-
-        this.markings = world.markings;
     }
 
     // to be overwritten by subclasses
@@ -47,15 +45,15 @@ class MarkingEditor {
     #handleMouseDown(ev) {
         if (ev.button == 0) { // left click
             if (this.intent) {
-                this.markings.push(this.intent);
+                this.world.markings.push(this.intent);
                 this.intent = null;
             }
         }
         if (ev.button == 2) { // right click
-            for (let i = 0; i < this.markings.length; i++) {
-                const polygon = this.markings[i].polygon;
+            for (let i = 0; i < this.world.markings.length; i++) {
+                const polygon = this.world.markings[i].polygon;
                 if (polygon.containsPoint(this.hoveredPoint)) {
-                    this.markings.splice(i, 1);
+                    this.world.markings.splice(i, 1);
                     return;
                 }
             }
