@@ -22,7 +22,6 @@ class Envelope {
         const alpha = angle(subtract(p1, p2));
         const alpha_ccw = alpha - Math.PI / 2;
         const alpha_cw = alpha + Math.PI / 2;
-        // console.log(alpha * 180/Math.PI, alpha_ccw * 180/Math.PI,alpha_cw, alpha_cw * 180/Math.PI)
         const points = [];
         const step = Math.PI / Math.max(1, roundness);
         const eps = step / 2

@@ -245,7 +245,7 @@ class World {
     }
 
     // Intersections are graph points with two or more intersecting segments (or roads)
-    #getIntersections() {
+    #getRoadIntersections() {
         const subset = [];
         for (const point of this.graph.points) {
             let degree = 0;
@@ -269,7 +269,7 @@ class World {
         const controlCenters = [];
         for (const trafficLight of trafficLights) {
             // For each traffic light, get the nearest road intersection
-            const nearestIntersectionPoint = getNearestPoint(trafficLight.center, this.#getIntersections());
+            const nearestIntersectionPoint = getNearestPoint(trafficLight.center, this.#getRoadIntersections());
             if (!nearestIntersectionPoint) continue;
             let controlCenter = controlCenters.find((c) => c.equals(nearestIntersectionPoint));
             if (!controlCenter) {
@@ -316,6 +316,11 @@ class World {
         for (const car of cars) {
             car.update(this.roadBorders);
         }
+        this.carToFollow = cars.find(
+            car => car.fitness === (Math.max(
+                ...cars.map(c => c.fitness))
+            )
+        );
     }
 
     #removeDisconnectedMarkings() {
@@ -354,12 +359,7 @@ class World {
         }
         // Road Markings
         for (const marking of this.markings) {
-            if (marking instanceof StartMarking) {
-                this.carToFollow = marking.car;
-                marking.draw(ctx, true);
-            } else {
-                marking.draw(ctx);
-            }
+            marking.draw(ctx);
         }
 
         // Buildings & Trees
