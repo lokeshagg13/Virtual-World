@@ -39,6 +39,12 @@ class Viewport {
         return add(this.offset, this.drag.offset);
     }
 
+    setOffset(point) {
+        if (point instanceof Point) {
+            this.offset = scale(point, -1);
+        }
+    }
+
     #addEventListeners() {
         this.canvas.addEventListener("mousewheel", this.#handleMouseWheel.bind(this));
         this.canvas.addEventListener("mousedown", this.#handleMouseDown.bind(this));

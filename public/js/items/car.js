@@ -38,6 +38,7 @@ class Car {
     }
 
     #handleKeyDown(ev) {
+        ev.preventDefault();
         switch (ev.key) {
             case "ArrowLeft":
                 this.controls.left = true;
@@ -55,6 +56,7 @@ class Car {
     }
 
     #handleKeyUp(ev) {
+        ev.preventDefault();
         switch (ev.key) {
             case "ArrowLeft":
                 this.controls.left = false;
@@ -109,10 +111,10 @@ class Car {
         this.center = translate(this.center, this.angle - Math.PI / 2, this.speed);
     }
 
-    update() {
+    update(roadBorders) {
         this.#move();
         if (this.sensor) {
-            this.sensor.update();
+            this.sensor.update(roadBorders);
         }
     }
 

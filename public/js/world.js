@@ -25,6 +25,7 @@ class World {
         this.laneGuides = [];
 
         this.markings = [];
+        this.carToFollow = null;
 
         this.frameCount = 0;
 
@@ -313,7 +314,7 @@ class World {
     #updateCars() {
         const cars = this.markings.filter((marking) => marking instanceof StartMarking).map((marking) => marking.car);
         for (const car of cars) {
-            car.update();
+            car.update(this.roadBorders);
         }
     }
 
@@ -343,14 +344,6 @@ class World {
         for (const envelope of this.envelopes) {
             envelope.draw(ctx, { fill: "#BBB", stroke: "#BBB", lineWidth: 15 });
         }
-        // Road Markings
-        for (const marking of this.markings) {
-            if (marking instanceof StartMarking) {
-                marking.draw(ctx, true);
-            } else {
-                marking.draw(ctx);
-            }
-        }
         // Road Dividers
         for (const segment of this.graph.segments) {
             segment.draw(ctx, { color: "#FFF", width: 4, dash: [10, 10] });
@@ -358,6 +351,15 @@ class World {
         // Road Borders
         for (const segment of this.roadBorders) {
             segment.draw(ctx, { color: "#FFF", width: 4 });
+        }
+        // Road Markings
+        for (const marking of this.markings) {
+            if (marking instanceof StartMarking) {
+                this.carToFollow = marking.car;
+                marking.draw(ctx, true);
+            } else {
+                marking.draw(ctx);
+            }
         }
 
         // Buildings & Trees

@@ -301,7 +301,7 @@
     <script src="js/items/car.js"></script>
     <script src="js/items/tree.js"></script>
     <script src="js/items/building.js"></script>
-    <script src="js/movement/controls.js"></script>
+    <script src="js/movement/sensor.js"></script>
     <script src="js/math/graph.js"></script>
     <script src="js/math/utils.js"></script>
     <script src="js/primitives/point.js"></script>
@@ -364,6 +364,9 @@
         if (graph.hash() != oldGraphHash) {
           world.generate();
           oldGraphHash = graph.hash();
+        }
+        if (world.carToFollow) {
+          viewport.setOffset(world.carToFollow.center);
         }
         const viewpoint = scale(viewport.getOffset(), -1);
         world.draw(ctx, viewpoint);
