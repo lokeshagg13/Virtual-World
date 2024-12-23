@@ -3,12 +3,13 @@ class StopEditor extends MarkingEditor {
         super(viewport, world, world.laneGuides);
     }
 
-    createMarking(center, directionVector) {
+    createMarking(center, directionVector, isLHT) {
         return new StopMarking(
             center,
             directionVector,
             this.world.roadWidth / 2,
-            this.world.roadWidth / 2
+            this.world.roadWidth / 2,
+            isLHT
         );
     }
 }

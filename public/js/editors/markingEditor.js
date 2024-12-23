@@ -15,7 +15,7 @@ class MarkingEditor {
     }
 
     // to be overwritten by subclasses
-    createMarking(center, directionVector) {
+    createMarking(center, directionVector, isLHT) {
         return center;
     }
 
@@ -75,6 +75,7 @@ class MarkingEditor {
                 this.intent = this.createMarking(
                     projection.point,
                     nearestSegment.directionVector(),
+                    this.world.isLHT
                 );
             } else {
                 this.intent = null;
@@ -86,7 +87,7 @@ class MarkingEditor {
 
     display() {
         if (this.intent) {
-            this.intent.draw(this.ctx, this.world.isLHT);
+            this.intent.draw(this.ctx);
         }
     }
 

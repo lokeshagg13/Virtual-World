@@ -1,9 +1,10 @@
 class Marking {
-    constructor(center, directionVector, width, height) {
+    constructor(center, directionVector, width, height, isLHT) {
         this.center = center;
         this.directionVector = directionVector;
         this.width = width;
         this.height = height;
+        this.isLHT = isLHT;
 
         this.support = new Segment(
             translate(center, angle(directionVector), height / 2),
@@ -42,7 +43,8 @@ class Marking {
                     center,
                     directionVector,
                     info.width,
-                    info.height
+                    info.height,
+                    info.isLHT
                 );
             case "stop":
                 return new StopMarking(
@@ -75,7 +77,7 @@ class Marking {
         }
     }
 
-    draw(ctx, isLHT = true) {
+    draw(ctx) {
         this.polygon.draw(ctx);
     }
 }

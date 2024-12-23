@@ -1,16 +1,17 @@
 class TrafficLightMarking extends Marking {
-    constructor(center, directionVector, width, height) {
+    constructor(center, directionVector, width, height, isLHT) {
         height = 25
-        super(center, directionVector, width, height);
-        this.border = this.polygon.segments[0];
+        super(center, directionVector, width, height, isLHT);
+        if (isLHT) {
+            this.border = this.polygon.segments[2];
+        } else {
+            this.border = this.polygon.segments[0];
+        }
         this.state = "off";
         this.type = "trafficLight";
     }
 
-    draw(ctx, isLHT = true) {
-        if (isLHT) {
-            this.border = this.polygon.segments[2];
-        }
+    draw(ctx) {
         const perp = perpendicular(this.directionVector);
         const line = new Segment(
             add(this.center, scale(perp, this.width / 2)),

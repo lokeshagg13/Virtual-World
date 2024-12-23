@@ -313,7 +313,7 @@ class World {
     #updateCars() {
         const cars = this.markings.filter((marking) => marking instanceof StartMarking).map((marking) => marking.car);
         for (const car of cars) {
-            car.update(this.isLHT);
+            car.update();
         }
     }
 
@@ -345,7 +345,11 @@ class World {
         }
         // Road Markings
         for (const marking of this.markings) {
-            marking.draw(ctx, this.isLHT);
+            if (marking instanceof StartMarking) {
+                marking.draw(ctx, true);
+            } else {
+                marking.draw(ctx);
+            }
         }
         // Road Dividers
         for (const segment of this.graph.segments) {

@@ -1,7 +1,6 @@
 class Car {
-    constructor(x, y, width, height, angle, maxSpeed = 3) {
-        this.x = x;
-        this.y = y;
+    constructor(center, width, height, angle, controlType = "AI", maxSpeed = 3) {
+        this.center = center;
         this.width = width;
         this.height = height;
         this.angle = angle;
@@ -17,6 +16,11 @@ class Car {
             right: false,
             reverse: false
         };
+
+        if (controlType === "AI") {
+            this.sensor = new Sensor(this);
+            // this.controls.forward = true;
+        }
 
         this.img = new Image();
         this.img.src = "images/cars/car_white.png";
@@ -67,7 +71,7 @@ class Car {
         }
     }
 
-    #move(isLHT) {
+    #move() {
         if (this.controls.forward) {
             this.speed += this.acceleration;
         }
@@ -93,7 +97,7 @@ class Car {
         }
 
         if (this.speed != 0) {
-            const flip = this.speed > 0 ? 1 : -1;
+            const flip = this.speed > 0 ? -1 : 1;
             if (this.controls.left) {
                 this.angle += 0.03 * flip;
             }
@@ -102,26 +106,24 @@ class Car {
             }
         }
 
-        let calcAngle = this.angle;
-        if (isLHT) {
-            calcAngle += Math.PI
+        this.center = translate(this.center, this.angle - Math.PI / 2, this.speed);
+    }
+
+    update() {
+        this.#move();
+        if (this.sensor) {
+            this.sensor.update();
         }
-        this.x -= Math.sin(calcAngle) * this.speed;
-        this.y -= Math.cos(calcAngle) * this.speed;
     }
 
-    update(isLHT) {
-        this.#move(isLHT);
-    }
+    draw(ctx, drawSensor = false) {
+        if (this.sensor && drawSensor) {
+            this.sensor.draw(ctx);
+        }
 
-    draw(ctx, isLHT = true) {
         ctx.save();
-        ctx.translate(this.x, this.y);
-        if (isLHT) {
-            ctx.rotate(-this.angle + Math.PI);
-        } else {
-            ctx.rotate(-this.angle);
-        }
+        ctx.translate(this.center.x, this.center.y);
+        ctx.rotate(this.angle)
 
         ctx.drawImage(this.img,
             -this.width / 2,

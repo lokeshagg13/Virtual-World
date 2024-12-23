@@ -1,24 +1,22 @@
 class StopMarking extends Marking {
-    constructor(center, directionVector, width, height) {
-        super(center, directionVector, width, height);
-        this.border = this.polygon.segments[2];
+    constructor(center, directionVector, width, height, isLHT) {
+        super(center, directionVector, width, height, isLHT);
+        if (isLHT) {
+            this.border = this.polygon.segments[0];
+            this.angle = angle(directionVector) + Math.PI / 2;
+        } else {
+            this.border = this.polygon.segments[2];
+            this.angle = angle(directionVector) - Math.PI / 2
+        }
         this.type = "stop";
     }
 
-    draw(ctx, isLHT = true) {
-        if (isLHT) {
-            this.border = this.polygon.segments[0];
-        }
-
+    draw(ctx) {
         this.border.draw(ctx, { width: 5, color: "white" });
 
         ctx.save();
         ctx.translate(this.center.x, this.center.y);
-        if (isLHT) {
-            ctx.rotate(angle(this.directionVector) + Math.PI / 2);
-        } else {
-            ctx.rotate(angle(this.directionVector) - Math.PI / 2);
-        }
+        ctx.rotate(this.angle);
         ctx.scale(1, 3);
 
         ctx.beginPath();

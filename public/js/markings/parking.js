@@ -1,22 +1,23 @@
 class ParkingMarking extends Marking {
-    constructor(center, directionVector, width, height) {
-        super(center, directionVector, width, height);
+    constructor(center, directionVector, width, height, isLHT) {
+        super(center, directionVector, width, height, isLHT);
         this.borders = [this.polygon.segments[0], this.polygon.segments[2]];
+        if (isLHT) {
+            this.angle = -angle(directionVector);
+        } else {
+            this.angle = angle(directionVector);
+        }
         this.type = "parking";
     }
 
-    draw(ctx, isLHT = true) {
+    draw(ctx) {
         for (const border of this.borders) {
             border.draw(ctx, { width: 5, color: "white" });
         }
 
         ctx.save();
         ctx.translate(this.center.x, this.center.y);
-        if (isLHT) {
-            ctx.rotate(-angle(this.directionVector));
-        } else {
-            ctx.rotate(angle(this.directionVector));
-        }
+        ctx.rotate(this.angle);
 
         ctx.beginPath();
         ctx.textBaseline = "middle";
