@@ -1,17 +1,18 @@
 class Car {
-    constructor(center, angle, isSimulation, controlType = "AI", maxSpeed = 3) {
+    constructor(center, angle, isSimulation, controlType = "AI") {
         this.center = center;
         this.angle = angle;
-        this.maxSpeed = maxSpeed;
-
         this.isSimulation = isSimulation;
+
+        const settings = World.loadSettingsFromLocalStorage();
+
+        this.maxSpeed = settings.carMaxSpeed;
+        this.acceleration = settings.carAcceleration;
+        this.friction = settings.roadFriction;
+
         this.damaged = false;
-
         this.speed = 0;
-        this.acceleration = 0.2;
-        this.friction = 0.05;
         this.fitness = 0;
-
         this.controls = {
             forward: false,
             left: false,
@@ -20,10 +21,15 @@ class Car {
         };
 
         if (controlType === "AI") {
-            this.sensor = new Sensor(this);
-            this.brain = new NeuralNetwork([
-                this.sensor.rayCount, 6, 4
-            ]);
+            this.showSensor = settings.showSensors;
+            this.sensor = new Sensor(
+                this,
+                settings.sensorRayCount,
+                settings.sensorRayLength,
+                settings.sensorRaySpread
+            );
+            console.log(settings.brainNeuronCounts);
+            this.brain = new NeuralNetwork(settings.brainNeuronCounts);
             // this.controls.forward = true;
         } else {
             this.#addKeyboardListeners();
@@ -172,7 +178,7 @@ class Car {
     }
 
     draw(ctx) {
-        if (!this.isSimulation && !this.damaged && this.sensor) {
+        if (!this.isSimulation && !this.damaged && this.showSensor && this.sensor) {
             this.sensor.draw(ctx);
         }
 

@@ -10,7 +10,8 @@ class SimulationEditor {
         this.intent = null;
         this.running = false;
 
-        this.numCars = 100
+        this.numCars = world.settings.simulationNumCars;
+        this.diffFactor = world.settings.simulationDiffFactor;
 
         this.targetSegments = world.laneGuides;
     }
@@ -64,7 +65,7 @@ class SimulationEditor {
                     if (bestBrainString) {
                         startMarking.car.brain = JSON.parse(bestBrainString);
                         if (i != 0) {
-                            NeuralNetwork.mutate(startMarking.car.brain, 0.1)
+                            NeuralNetwork.mutate(startMarking.car.brain, this.diffFactor)
                         }
                     }
                     this.world.markings.push(startMarking);

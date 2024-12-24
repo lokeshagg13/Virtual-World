@@ -7,7 +7,7 @@ const worldString = localStorage.getItem("world");
 const worldInfo = worldString ? JSON.parse(worldString) : null;
 let world = worldInfo
     ? World.load(worldInfo)
-    : new World(new Graph(), true);
+    : new World(new Graph());
 const graph = world.graph;
 let oldGraphHash = graph.hash();
 
@@ -38,9 +38,6 @@ const tools = {
         editor: new TrafficLightEditor(viewport, world),
     },
 };
-
-let worldSettings = loadSettingsFromLocalStorage();
-worldSettings.save();
 
 addEventListeners();
 setMode("graph");
@@ -77,7 +74,6 @@ function saveWorldData() {
     world.zoom = viewport.zoom;
     world.offset = viewport.offset;
     world.screenshot = myCanvas.toDataURL("image/png");
-    world.settings = worldSettings;
 
     // Send the API request
     fetch("http://localhost:3000/api/save-world", {
@@ -123,8 +119,6 @@ function loadWorldData(worldId) {
         .then((data) => {
             const selectedWorld = data.world;
             world = World.load(selectedWorld); // Load the world data
-            worldSettings = Settings.load(selectedWorld.settings);
-            localStorage.setItem("world", JSON.stringify(world));
             document.getElementById("selectWorldModal").style.display = "none";
             showLoadingModal();
             setTimeout(() => {
@@ -278,7 +272,7 @@ function resetSimulation() {
 
 let tooltipTimeout;
 let pendingTrafficSideChange = false;
-let tempSettings = JSON.parse(JSON.stringify(worldSettings));
+let tempSettings = JSON.parse(JSON.stringify(world.settings));
 
 function addEventListeners() {
     document
@@ -292,7 +286,6 @@ function addEventListeners() {
     document
         .getElementById("roadWidth")
         .addEventListener("input", (ev) => {
-            hideErrorMessages();
             const value = document.getElementById("roadWidth").value;
             if (value === "" && ev.data === null) {
                 return;
@@ -506,44 +499,33 @@ function hideErrorMessages() {
     }
 }
 
-function loadSettingsFromLocalStorage() {
-    const worldSettingsString = localStorage.getItem("settings")
-    const worldSettingsObj = worldSettingsString
-        ? JSON.parse(worldSettingsString)
-        : null;
-    const worldSettings = worldSettingsObj
-        ? Settings.load(worldSettingsObj)
-        : new Settings();
-    return worldSettings;
-}
-
 function loadSettingsIntoDisplay() {
     // Reset World Section
-    document.getElementById("roadWidth").value = worldSettings.roadWidth;
-    document.getElementById("buildingWidth").value = worldSettings.buildingWidth;
-    document.getElementById("buildingMinLength").value = worldSettings.buildingMinLength;
-    document.getElementById("spacing").value = worldSettings.spacing;
-    document.getElementById("treeSize").value = worldSettings.treeSize;
-    document.getElementById("treeHeight").value = worldSettings.treeHeight;
+    document.getElementById("roadWidth").value = world.settings.roadWidth;
+    document.getElementById("buildingWidth").value = world.settings.buildingWidth;
+    document.getElementById("buildingMinLength").value = world.settings.buildingMinLength;
+    document.getElementById("spacing").value = world.settings.spacing;
+    document.getElementById("treeSize").value = world.settings.treeSize;
+    document.getElementById("treeHeight").value = world.settings.treeHeight;
 
     // Reset Cars Section
-    document.getElementById("carMaxSpeed").value = worldSettings.carMaxSpeed; // Medium
-    document.getElementById("carAcceleration").value = worldSettings.carAcceleration; // Medium
+    document.getElementById("carMaxSpeed").value = world.settings.carMaxSpeed; // Medium
+    document.getElementById("carAcceleration").value = world.settings.carAcceleration; // Medium
 
     // Reset Simulation Section
-    document.getElementById("simulationNumCars").value = worldSettings.simulationNumCars;
-    document.getElementById("simulationDiffFactor").value = worldSettings.simulationDiffFactor;
+    document.getElementById("simulationNumCars").value = world.settings.simulationNumCars;
+    document.getElementById("simulationDiffFactor").value = world.settings.simulationDiffFactor;
 
     // Reset Sensors Section
-    document.getElementById("sensorRayCount").value = worldSettings.sensorRayCount;
+    document.getElementById("sensorRayCount").value = world.settings.sensorRayCount;
     document.getElementById("sensorRaySpread").value = convertRadiansToDegrees(
-        worldSettings.sensorRaySpread
+        world.settings.sensorRaySpread
     ); // 90º
-    document.getElementById("sensorRayLength").value = worldSettings.sensorRayLength;
-    document.getElementById("showSensors").checked = worldSettings.showSensors;
+    document.getElementById("sensorRayLength").value = world.settings.sensorRayLength;
+    document.getElementById("showSensors").checked = world.settings.showSensors;
 
     // Reset Brain Section
-    document.getElementById("brainComplexity").value = worldSettings.brainComplexity; // Low
+    document.getElementById("brainComplexity").value = world.settings.brainComplexity; // Low
 }
 
 function areValidSettings(settings) {
@@ -592,7 +574,9 @@ function areValidSettings(settings) {
 }
 
 function saveSettings() {
-    const worldSettingsObj = worldSettings.convertValuesToDisplay();
+    hideErrorMessages();
+
+    const worldSettingsObj = world.settings.convertValuesToDisplay();
 
     // Save World Section
     worldSettingsObj.roadWidth = document.getElementById("roadWidth").value;
@@ -623,9 +607,8 @@ function saveSettings() {
 
     const newSettings = Settings.load(worldSettingsObj);
     if (areValidSettings(newSettings)) {
-        hideErrorMessages();
-        worldSettings = newSettings;
-        worldSettings.save();
+        world.settings = newSettings;
+        world.settings.save();
         showSaveConfirmationModal('Settings saved successfully');
         loadSettingsIntoDisplay();
     }
@@ -633,8 +616,8 @@ function saveSettings() {
 
 function resetSettings() {
     hideErrorMessages();
-    worldSettings.reset();
-    worldSettings.save();
+    world.settings.reset();
+    world.settings.save();
     loadSettingsIntoDisplay();
 }
 

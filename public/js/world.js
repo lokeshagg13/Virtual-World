@@ -1,22 +1,15 @@
 class World {
-    constructor(
-        graph,
-        isLHT = true,
-        roadWidth = 100,
-        roadRoundness = 10,
-        buildingWidth = 150,
-        buildingMinLength = 150,
-        spacing = 50,
-        treeSize = 160
-    ) {
+    constructor(graph) {
         this.graph = graph;
-        this.isLHT = isLHT;
-        this.roadWidth = roadWidth;
-        this.roadRoundness = roadRoundness;
-        this.buildingWidth = buildingWidth;
-        this.buildingMinLength = buildingMinLength;
-        this.spacing = spacing;
-        this.treeSize = treeSize;
+        this.settings = World.loadSettingsFromLocalStorage();
+        this.roadWidth = this.settings.roadWidth;
+        this.roadRoundness = this.settings.roadRoundness;
+        this.buildingWidth = this.settings.buildingWidth;
+        this.buildingMinLength = this.settings.buildingMinLength;
+        this.spacing = this.settings.spacing;
+        this.treeSize = this.settings.treeSize;
+        this.treeHeight = this.settings.treeHeight;
+        this.isLHT = this.settings.isLHT;
 
         this.envelopes = [];
         this.roadBorders = [];
@@ -35,13 +28,15 @@ class World {
     static load(info) {
         const world = new World(new Graph());
         world.graph = Graph.load(info.graph);
-        world.isLHT = info.isLHT;
+        world.settings = World.loadSettingsFromLocalStorage();
         world.roadWidth = info.roadWidth;
         world.roadRoundness = info.roadRoundness;
         world.buildingWidth = info.buildingWidth;
         world.buildingMinLength = info.buildingMinLength;
         world.spacing = info.spacing;
         world.treeSize = info.treeSize;
+        world.treeHeight = info.treeHeight;
+        world.isLHT = info.isLHT;
 
         world.envelopes = info.envelopes.map(
             (e) => Envelope.load(e)
@@ -80,6 +75,18 @@ class World {
         world.zoom = info.zoom;
         world.offset = info.offset;
         return world;
+    }
+
+    static loadSettingsFromLocalStorage() {
+        const worldSettingsString = localStorage.getItem("settings")
+        const worldSettingsObj = worldSettingsString
+            ? JSON.parse(worldSettingsString)
+            : null;
+        const worldSettings = worldSettingsObj
+            ? Settings.load(worldSettingsObj)
+            : new Settings();
+        worldSettings.save();
+        return worldSettings;
     }
 
     generate() {
@@ -175,7 +182,7 @@ class World {
             }
 
             if (keep) {
-                trees.push(new Tree(p, this.treeSize));
+                trees.push(new Tree(p, this.treeSize, this.treeHeight));
                 tryCount = 0;
             }
             tryCount++;

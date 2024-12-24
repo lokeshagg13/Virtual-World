@@ -1,6 +1,7 @@
 class Settings {
     constructor(
         roadWidth = 100,
+        roadRoundness = 10,
         buildingWidth = 150,
         buildingMinLength = 150,
         spacing = 50,
@@ -18,8 +19,10 @@ class Settings {
         brainNeuronCounts = [6, 4],
         carMaxSpeed = 3,
         carAcceleration = 0.2,
+        roadFriction = 0.05
     ) {
         this.roadWidth = roadWidth;
+        this.roadRoundness = roadRoundness;
         this.buildingWidth = buildingWidth;
         this.buildingMinLength = buildingMinLength;
         this.spacing = spacing;
@@ -37,6 +40,7 @@ class Settings {
         this.brainNeuronCounts = brainNeuronCounts.unshift(sensorRayCount);
         this.carMaxSpeed = carMaxSpeed;
         this.carAcceleration = carAcceleration;
+        this.roadFriction = roadFriction;
     }
 
     static load(settingsObj) {
@@ -59,6 +63,7 @@ class Settings {
 
         return new Settings(
             tryParseInt(settingsObj.roadWidth, 100),
+            tryParseInt(settingsObj.roadRoundness, 10),
             tryParseInt(settingsObj.buildingWidth, 150),
             tryParseInt(settingsObj.buildingMinLength, 150),
             tryParseInt(settingsObj.spacing, 50),
@@ -75,7 +80,8 @@ class Settings {
             settingsObj.brainLevels,
             settingsObj.brainNeuronCounts,
             tryParseInt(settingsObj.carMaxSpeed, 3),
-            tryParseFloat(settingsObj.carAcceleration, 0.2)
+            tryParseFloat(settingsObj.carAcceleration, 0.2),
+            tryParseFloat(settingsObj.roadFriction, 0.05)
         );
     }
 
@@ -85,6 +91,7 @@ class Settings {
 
     reset() {
         this.roadWidth = 100;
+        this.roadRoundness = 10;
         this.buildingWidth = 150;
         this.buildingMinLength = 150;
         this.spacing = 50;
@@ -102,11 +109,13 @@ class Settings {
         this.brainNeuronCounts = [5, 6, 4];
         this.carMaxSpeed = 3;
         this.carAcceleration = 0.2;
+        this.roadFriction = 0.05;
     }
 
     convertValuesToDisplay() {
         const settingsObj = {}
         settingsObj.roadWidth = this.roadWidth;
+        settingsObj.roadRoundness = this.roadRoundness;
         settingsObj.buildingWidth = this.buildingWidth;
         settingsObj.buildingMinLength = this.buildingMinLength;
         settingsObj.spacing = this.spacing;
@@ -128,6 +137,7 @@ class Settings {
         settingsObj.brainComplexity = this.brainComplexity;
         settingsObj.carMaxSpeed = "" + this.carMaxSpeed;
         settingsObj.carAcceleration = "" + this.carAcceleration;
+        settingsObj.roadFriction = this.roadFriction;
         return settingsObj;
     }
 }
