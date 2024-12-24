@@ -10,19 +10,16 @@ class SimulationEditor {
         this.intent = null;
         this.running = false;
 
-        this.numCars = world.settings.simulationNumCars;
-        this.diffFactor = world.settings.simulationDiffFactor;
-
         this.targetSegments = world.laneGuides;
     }
 
-    createMarking(center, directionVector, isLHT) {
+    createMarking(center, directionVector) {
         return new StartMarking(
             center,
             directionVector,
-            this.world.roadWidth * 0.4,
-            this.world.roadWidth / 4,
-            isLHT,
+            this.world.settings.roadWidth * 0.4,
+            this.world.settings.roadWidth / 4,
+            this.world.settings.isLHT,
             true
         );
     }
@@ -56,16 +53,16 @@ class SimulationEditor {
         if (ev.button == 0) { // left click
             if (this.intent && !this.running) {
                 const bestBrainString = localStorage.getItem("bestBrain");
-                for (let i = 0; i < this.numCars; i++) {
+                for (let i = 0; i < this.world.settings.simulationNumCars; i++) {
                     const startMarking = this.createMarking(
                         this.intent.center,
                         this.intent.directionVector,
-                        this.world.isLHT
+                        this.world.settings.isLHT
                     );
                     if (bestBrainString) {
                         startMarking.car.brain = JSON.parse(bestBrainString);
                         if (i != 0) {
-                            NeuralNetwork.mutate(startMarking.car.brain, this.diffFactor)
+                            NeuralNetwork.mutate(startMarking.car.brain, this.world.settings.simulationDiffFactor)
                         }
                     }
                     this.world.markings.push(startMarking);
@@ -92,7 +89,7 @@ class SimulationEditor {
                 this.intent = this.createMarking(
                     projection.point,
                     nearestSegment.directionVector(),
-                    this.world.isLHT
+                    this.world.settings.isLHT
                 );
             } else {
                 this.intent = null;

@@ -609,6 +609,7 @@ function saveSettings() {
     if (areValidSettings(newSettings)) {
         world.settings = newSettings;
         world.settings.save();
+        world.generate();
         showSaveConfirmationModal('Settings saved successfully');
         loadSettingsIntoDisplay();
     }

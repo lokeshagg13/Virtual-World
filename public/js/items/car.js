@@ -5,7 +5,6 @@ class Car {
         this.isSimulation = isSimulation;
 
         const settings = World.loadSettingsFromLocalStorage();
-
         this.maxSpeed = settings.carMaxSpeed;
         this.acceleration = settings.carAcceleration;
         this.friction = settings.roadFriction;
@@ -28,7 +27,6 @@ class Car {
                 settings.sensorRayLength,
                 settings.sensorRaySpread
             );
-            console.log(settings.brainNeuronCounts);
             this.brain = new NeuralNetwork(settings.brainNeuronCounts);
             // this.controls.forward = true;
         } else {
@@ -145,7 +143,22 @@ class Car {
         return false;
     }
 
+    #updateSettings(settings) {
+        this.maxSpeed = settings.carMaxSpeed;
+        this.acceleration = settings.carAcceleration;
+        this.friction = settings.roadFriction;
+        this.showSensor = settings.showSensors;
+        this.sensor = new Sensor(
+            this,
+            settings.sensorRayCount,
+            settings.sensorRayLength,
+            settings.sensorRaySpread
+        );
+    }
+
     update(roadBorders) {
+        const settings = World.loadSettingsFromLocalStorage();
+        this.#updateSettings(settings);
         if (!this.damaged) {
             this.#move();
             if (this.controls.forward && !this.controls.reverse) {

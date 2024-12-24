@@ -2,14 +2,6 @@ class World {
     constructor(graph) {
         this.graph = graph;
         this.settings = World.loadSettingsFromLocalStorage();
-        this.roadWidth = this.settings.roadWidth;
-        this.roadRoundness = this.settings.roadRoundness;
-        this.buildingWidth = this.settings.buildingWidth;
-        this.buildingMinLength = this.settings.buildingMinLength;
-        this.spacing = this.settings.spacing;
-        this.treeSize = this.settings.treeSize;
-        this.treeHeight = this.settings.treeHeight;
-        this.isLHT = this.settings.isLHT;
 
         this.envelopes = [];
         this.roadBorders = [];
@@ -29,14 +21,6 @@ class World {
         const world = new World(new Graph());
         world.graph = Graph.load(info.graph);
         world.settings = World.loadSettingsFromLocalStorage();
-        world.roadWidth = info.roadWidth;
-        world.roadRoundness = info.roadRoundness;
-        world.buildingWidth = info.buildingWidth;
-        world.buildingMinLength = info.buildingMinLength;
-        world.spacing = info.spacing;
-        world.treeSize = info.treeSize;
-        world.treeHeight = info.treeHeight;
-        world.isLHT = info.isLHT;
 
         world.envelopes = info.envelopes.map(
             (e) => Envelope.load(e)
@@ -78,7 +62,7 @@ class World {
     }
 
     static loadSettingsFromLocalStorage() {
-        const worldSettingsString = localStorage.getItem("settings")
+        const worldSettingsString = localStorage.getItem("settings");
         const worldSettingsObj = worldSettingsString
             ? JSON.parse(worldSettingsString)
             : null;
@@ -94,7 +78,7 @@ class World {
 
         for (const segment of this.graph.segments) {
             this.envelopes.push(
-                new Envelope(segment, this.roadWidth, this.roadRoundness)
+                new Envelope(segment, this.settings.roadWidth, this.settings.roadRoundness)
             );
         }
 
@@ -107,7 +91,8 @@ class World {
     }
 
     changeTrafficSide(isLHT) {
-        this.isLHT = isLHT;
+        this.settings.isLHT = isLHT;
+        this.settings.save();
         this.markings.length = 0;
     }
 
@@ -117,8 +102,8 @@ class World {
             tmpEnvelopes.push(
                 new Envelope(
                     segment,
-                    this.roadWidth / 2,
-                    this.roadRoundness
+                    this.settings.roadWidth / 2,
+                    this.settings.roadRoundness
                 )
             );
         }
@@ -153,7 +138,7 @@ class World {
             let keep = true;
             for (const polygon of illegalPolygons) {
                 if (polygon.containsPoint(p) ||
-                    polygon.distanceToPoint(p) < this.treeSize / 2) {
+                    polygon.distanceToPoint(p) < this.settings.treeSize / 2) {
                     keep = false;
                     break;
                 }
@@ -162,7 +147,7 @@ class World {
             // Check if tree is too close to other trees
             if (keep) {
                 for (const tree of trees) {
-                    if (distance(tree.center, p) < this.treeSize) {
+                    if (distance(tree.center, p) < this.settings.treeSize) {
                         keep = false;
                         break
                     }
@@ -173,7 +158,7 @@ class World {
             if (keep) {
                 let closeToSomething = false;
                 for (const polygon of illegalPolygons) {
-                    if (polygon.distanceToPoint(p) < this.treeSize * 2) {
+                    if (polygon.distanceToPoint(p) < this.settings.treeSize * 2) {
                         closeToSomething = true;
                         break;
                     }
@@ -182,7 +167,7 @@ class World {
             }
 
             if (keep) {
-                trees.push(new Tree(p, this.treeSize, this.treeHeight));
+                trees.push(new Tree(p, this.settings.treeSize, this.settings.treeHeight));
                 tryCount = 0;
             }
             tryCount++;
@@ -197,23 +182,23 @@ class World {
             tmpEnvelopes.push(
                 new Envelope(
                     segment,
-                    this.roadWidth + this.buildingWidth + this.spacing * 2,
-                    this.roadRoundness
+                    this.settings.roadWidth + this.settings.buildingWidth + this.settings.spacing * 2,
+                    this.settings.roadRoundness
                 )
             );
         }
 
         const guides = Polygon.union(tmpEnvelopes.map((e) => e.polygon));
-        const buildingSuitableGuides = guides.filter((segment) => (segment.length() > this.buildingMinLength));
+        const buildingSuitableGuides = guides.filter((segment) => (segment.length() > this.settings.buildingMinLength));
 
         // Creating supports for buildings using the buildings
         const buildingSupports = [];
         for (let segment of buildingSuitableGuides) {
-            const length = segment.length() + this.spacing;
+            const length = segment.length() + this.settings.spacing;
             const buildingCount = Math.floor(
-                length / (this.buildingMinLength + this.spacing)
+                length / (this.settings.buildingMinLength + this.settings.spacing)
             );
-            const buildingLength = length / buildingCount - this.spacing;
+            const buildingLength = length / buildingCount - this.settings.spacing;
 
             const direction = segment.directionVector();
 
@@ -222,7 +207,7 @@ class World {
             buildingSupports.push(new Segment(q1, q2));
 
             for (let i = 2; i <= buildingCount; i++) {
-                q1 = add(q2, scale(direction, this.spacing));
+                q1 = add(q2, scale(direction, this.settings.spacing));
                 q2 = add(q1, scale(direction, buildingLength));
                 buildingSupports.push(new Segment(q1, q2));
             }
@@ -231,7 +216,7 @@ class World {
         // Creating rectangular bases for buildings using the supports
         const buildingBases = [];
         for (let segment of buildingSupports) {
-            buildingBases.push(new Envelope(segment, this.buildingWidth).polygon);
+            buildingBases.push(new Envelope(segment, this.settings.buildingWidth).polygon);
         }
 
         // Removing any overlapping building bases
@@ -240,7 +225,7 @@ class World {
             for (let j = i + 1; j < buildingBases.length; j++) {
                 if (
                     buildingBases[i].intersectsPolygon(buildingBases[j]) ||
-                    buildingBases[i].distanceToPolygon(buildingBases[j]) < this.spacing - eps
+                    buildingBases[i].distanceToPolygon(buildingBases[j]) < this.settings.spacing - eps
                 ) {
                     buildingBases.splice(j, 1);
                     j--;

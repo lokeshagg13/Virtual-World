@@ -29,14 +29,16 @@ class Marking {
                     center,
                     directionVector,
                     info.width,
-                    info.height
+                    info.height,
+                    info.isLHT
                 );
             case "parking":
                 return new ParkingMarking(
                     center,
                     directionVector,
                     info.width,
-                    info.height
+                    info.height,
+                    info.isLHT
                 );
             case "start":
                 return new StartMarking(
@@ -51,28 +53,32 @@ class Marking {
                     center,
                     directionVector,
                     info.width,
-                    info.height
+                    info.height,
+                    info.isLHT
                 );
             case "target":
                 return new TargetMarking(
                     center,
                     directionVector,
                     info.width,
-                    info.height
+                    info.height,
+                    info.isLHT
                 );
             case "trafficLight":
                 return new TrafficLightMarking(
                     center,
                     directionVector,
                     info.width,
-                    info.height
+                    info.height,
+                    info.isLHT
                 );
             case "yield":
                 return new YieldMarking(
                     center,
                     directionVector,
                     info.width,
-                    info.height
+                    info.height,
+                    info.isLHT
                 );
         }
     }
