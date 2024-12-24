@@ -61,6 +61,10 @@ class World {
         return world;
     }
 
+    save() {
+        localStorage.setItem("world", JSON.stringify(this));
+    }
+
     static loadSettingsFromLocalStorage() {
         const worldSettingsString = localStorage.getItem("settings");
         const worldSettingsObj = worldSettingsString

@@ -101,7 +101,7 @@ function saveWorldData() {
             showErrorModal("Error saving the world.");
         });
 
-    localStorage.setItem("world", JSON.stringify(world));
+    world.save();
 }
 
 function loadWorldData(worldId) {
@@ -119,6 +119,7 @@ function loadWorldData(worldId) {
         .then((data) => {
             const selectedWorld = data.world;
             world = World.load(selectedWorld); // Load the world data
+            world.save();
             document.getElementById("selectWorldModal").style.display = "none";
             showLoadingModal();
             setTimeout(() => {
