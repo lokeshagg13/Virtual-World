@@ -89,6 +89,38 @@ button {
   justify-content: center;
 }
 
+#saveConfirmationModal {
+  z-index: 1100;
+}
+
+#settingsModal .modal-dialog {
+  max-height: 80vh;
+  height: 80vh;
+  overflow: auto;
+  z-index: 1;
+}
+
+#settingsModal .modal-content {
+  height: 100%;
+  overflow-y: auto;
+}
+
+#settingsModal .modal-body {
+  padding: 15px;
+  max-height: calc(80vh - 120px);
+  overflow-y: auto;
+}
+
+#settingsModal .modal-footer {
+  display: flex;
+  justify-content: space-between;
+}
+
+#settingsModal small.error-message {
+  color: red;
+  display: none;
+}
+
 #selectWorldModal .modal-dialog {
   max-height: 50vh;
   height: 50vh;
@@ -104,6 +136,23 @@ button {
   padding: 15px;
   max-height: calc(50vh - 120px);
   overflow-y: auto;
+}
+
+.form-group.flex {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.form-group.flex label {
+  margin-bottom: 0;
+}
+
+#showSensors {
+  width: 25px;
+  height: 25px;
+  margin: 0 0 0 1rem;
+  position: relative;
 }
 
 .world-list {

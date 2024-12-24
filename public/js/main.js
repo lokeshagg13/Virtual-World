@@ -9,6 +9,7 @@ let world = worldInfo
     ? World.load(worldInfo)
     : new World(new Graph(), true);
 const graph = world.graph;
+let oldGraphHash = graph.hash();
 
 const viewport = new Viewport(myCanvas, world.zoom, world.offset);
 const tools = {
@@ -37,19 +38,13 @@ const tools = {
         editor: new TrafficLightEditor(viewport, world),
     },
 };
-let oldGraphHash = graph.hash();
 
+let worldSettings = loadSettingsFromLocalStorage();
+worldSettings.save();
+
+addEventListeners();
 setMode("graph");
 animate();
-
-let pendingTrafficSideChange = false;
-document
-    .getElementById("trafficToggle")
-    .addEventListener("change", (ev) => {
-        ev.target.checked = !ev.target.checked; // Prevent immediate change
-        pendingTrafficSideChange = ev.target.checked;
-        showTrafficSideChangeConfirmationModal();
-    });
 
 function animate() {
     viewport.reset();
@@ -82,6 +77,8 @@ function saveWorldData() {
     world.zoom = viewport.zoom;
     world.offset = viewport.offset;
     world.screenshot = myCanvas.toDataURL("image/png");
+    world.settings = worldSettings;
+
     // Send the API request
     fetch("http://localhost:3000/api/save-world", {
         method: "POST",
@@ -126,6 +123,7 @@ function loadWorldData(worldId) {
         .then((data) => {
             const selectedWorld = data.world;
             world = World.load(selectedWorld); // Load the world data
+            worldSettings = Settings.load(selectedWorld.settings);
             localStorage.setItem("world", JSON.stringify(world));
             document.getElementById("selectWorldModal").style.display = "none";
             showLoadingModal();
@@ -276,4 +274,377 @@ function resetSimulation() {
         return !m.car.isSimulation;
     });
     tools["simulation"].editor.running = false;
+}
+
+let tooltipTimeout;
+let pendingTrafficSideChange = false;
+let tempSettings = JSON.parse(JSON.stringify(worldSettings));
+
+function addEventListeners() {
+    document
+        .getElementById("trafficToggle")
+        .addEventListener("change", (ev) => {
+            ev.target.checked = !ev.target.checked; // Prevent immediate change
+            pendingTrafficSideChange = ev.target.checked;
+            showTrafficSideChangeConfirmationModal();
+        });
+
+    document
+        .getElementById("roadWidth")
+        .addEventListener("input", (ev) => {
+            hideErrorMessages();
+            const value = document.getElementById("roadWidth").value;
+            if (value === "" && ev.data === null) {
+                return;
+            }
+            if (['+', '-', '.'].includes(ev.data)) {
+                document.getElementById("roadWidth").value = tempSettings.roadWidth;
+                showTooltip('roadWidth');
+                return;
+            }
+            tempSettings.roadWidth = value;
+        });
+
+    document
+        .getElementById("buildingWidth")
+        .addEventListener("input", (ev) => {
+            const value = document.getElementById("buildingWidth").value;
+            if (value === "" && ev.data === null) {
+                return;
+            }
+            if (['+', '-', '.'].includes(ev.data)) {
+                document.getElementById("buildingWidth").value = tempSettings.buildingWidth;
+                showTooltip('buildingWidth');
+                return;
+            }
+            tempSettings.buildingWidth = value;
+        });
+
+    document
+        .getElementById("buildingMinLength")
+        .addEventListener("input", (ev) => {
+            const value = document.getElementById("buildingMinLength").value;
+            if (value === "" && ev.data === null) {
+                return;
+            }
+            if (['+', '-', '.'].includes(ev.data)) {
+                document.getElementById("buildingMinLength").value = tempSettings.buildingMinLength;
+                showTooltip('buildingMinLength');
+                return;
+            }
+            tempSettings.buildingMinLength = value;
+        });
+
+    document
+        .getElementById("spacing")
+        .addEventListener("input", (ev) => {
+            const value = document.getElementById("spacing").value;
+            if (value === "" && ev.data === null) {
+                return;
+            }
+            if (['+', '-', '.'].includes(ev.data)) {
+                document.getElementById("spacing").value = tempSettings.spacing;
+                showTooltip('spacing');
+                return;
+            }
+            tempSettings.spacing = value;
+        });
+
+    document
+        .getElementById("treeSize")
+        .addEventListener("input", (ev) => {
+            const value = document.getElementById("treeSize").value;
+            if (value === "" && ev.data === null) {
+                return;
+            }
+            if (['+', '-', '.'].includes(ev.data)) {
+                document.getElementById("treeSize").value = tempSettings.treeSize;
+                showTooltip('treeSize');
+                return;
+            }
+            tempSettings.treeSize = value;
+        });
+
+    document
+        .getElementById("treeHeight")
+        .addEventListener("input", (ev) => {
+            const value = document.getElementById("treeHeight").value;
+            if (value === "" && ev.data === null) {
+                return;
+            }
+            if (['+', '-', '.'].includes(ev.data)) {
+                document.getElementById("treeHeight").value = tempSettings.treeHeight;
+                showTooltip('treeHeight');
+                return;
+            }
+            tempSettings.treeHeight = value;
+        });
+
+    document
+        .getElementById("carMaxSpeed")
+        .addEventListener("input", (ev) => {
+            const value = document.getElementById("carMaxSpeed").value;
+            if (value === "" && ev.data === null) {
+                return;
+            }
+            if (['+', '-', '.'].includes(ev.data)) {
+                document.getElementById("carMaxSpeed").value = tempSettings.carMaxSpeed;
+                showTooltip('carMaxSpeed');
+                return;
+            }
+            tempSettings.carMaxSpeed = value;
+        });
+
+    document
+        .getElementById("carAcceleration")
+        .addEventListener("input", (ev) => {
+            const value = document.getElementById("carAcceleration").value;
+            if (value === "" && ev.data === null) {
+                return;
+            }
+            if (['+', '-'].includes(ev.data)) {
+                document.getElementById("carAcceleration").value = tempSettings.carAcceleration;
+                showTooltip('carAcceleration');
+                return;
+            }
+            tempSettings.carAcceleration = value;
+        });
+
+    document
+        .getElementById("simulationNumCars")
+        .addEventListener("input", (ev) => {
+            const value = document.getElementById("simulationNumCars").value;
+            if (value === "" && ev.data === null) {
+                return;
+            }
+            if (['+', '-', '.'].includes(ev.data)) {
+                document.getElementById("simulationNumCars").value = tempSettings.simulationNumCars;
+                showTooltip('simulationNumCars');
+                return;
+            }
+            if (parseInt(value, 10) < 1) {
+                document.getElementById("simulationNumCars").value = tempSettings.simulationNumCars;
+                showTooltip('simulationNumCars');
+                return;
+            }
+            tempSettings.simulationNumCars = value;
+        });
+
+    document
+        .getElementById("simulationDiffFactor")
+        .addEventListener("input", (ev) => {
+            const value = document.getElementById("simulationDiffFactor").value;
+            console.log(value)
+            if (value === "" && ev.data === null) {
+                console.log('1' + value)
+                return;
+            }
+            if (['+', '-'].includes(ev.data)) {
+                console.log('2' + ev.data)
+                document.getElementById("simulationDiffFactor").value = tempSettings.simulationDiffFactor;
+                showTooltip('simulationDiffFactor');
+                return;
+            }
+            if (parseFloat(value, 10) < 0 || parseFloat(value, 10) > 1) {
+                console.log('3' + value)
+                document.getElementById("simulationDiffFactor").value = tempSettings.simulationDiffFactor;
+                showTooltip('simulationDiffFactor');
+                return;
+            }
+            tempSettings.simulationDiffFactor = value || 0.1;
+        });
+
+    document
+        .getElementById("sensorRayCount")
+        .addEventListener("input", (ev) => {
+            const value = document.getElementById("sensorRayCount").value;
+            if (value === "" && ev.data === null) {
+                return;
+            }
+            if (['+', '-', '.'].includes(ev.data)) {
+                document.getElementById("sensorRayCount").value = tempSettings.sensorRayCount;
+                showTooltip('sensorRayCount');
+                return;
+            }
+            tempSettings.sensorRayCount = value;
+        });
+
+    document
+        .getElementById("sensorRayLength")
+        .addEventListener("input", (ev) => {
+            const value = document.getElementById("sensorRayLength").value;
+            if (value === "" && ev.data === null) {
+                return;
+            }
+            if (['+', '-', '.'].includes(ev.data)) {
+                document.getElementById("sensorRayLength").value = tempSettings.sensorRayLength;
+                showTooltip('sensorRayLength');
+                return;
+            }
+            tempSettings.sensorRayLength = value;
+        });
+}
+
+function showTooltip(inputId) {
+    clearTimeout(tooltipTimeout);
+    $('#' + inputId).popover('show');
+    tooltipTimeout = setTimeout((id) => hideTooltip(id), 3000, inputId);
+}
+
+function hideTooltip(inputId) {
+    $('#' + inputId).popover('hide')
+}
+
+function showErrorMessage(inputId) {
+    document.getElementById(inputId + 'Error').style.display = 'block';
+}
+
+function hideErrorMessages() {
+    const selectors = [...document.querySelectorAll('#settingsModal small.error-message')];
+    for (let i = 0; i < selectors.length; i++) {
+        selectors[i].style.display = 'none';
+    }
+}
+
+function loadSettingsFromLocalStorage() {
+    const worldSettingsString = localStorage.getItem("settings")
+    const worldSettingsObj = worldSettingsString
+        ? JSON.parse(worldSettingsString)
+        : null;
+    const worldSettings = worldSettingsObj
+        ? Settings.load(worldSettingsObj)
+        : new Settings();
+    return worldSettings;
+}
+
+function loadSettingsIntoDisplay() {
+    // Reset World Section
+    document.getElementById("roadWidth").value = worldSettings.roadWidth;
+    document.getElementById("buildingWidth").value = worldSettings.buildingWidth;
+    document.getElementById("buildingMinLength").value = worldSettings.buildingMinLength;
+    document.getElementById("spacing").value = worldSettings.spacing;
+    document.getElementById("treeSize").value = worldSettings.treeSize;
+    document.getElementById("treeHeight").value = worldSettings.treeHeight;
+
+    // Reset Cars Section
+    document.getElementById("carMaxSpeed").value = worldSettings.carMaxSpeed; // Medium
+    document.getElementById("carAcceleration").value = worldSettings.carAcceleration; // Medium
+
+    // Reset Simulation Section
+    document.getElementById("simulationNumCars").value = worldSettings.simulationNumCars;
+    document.getElementById("simulationDiffFactor").value = worldSettings.simulationDiffFactor;
+
+    // Reset Sensors Section
+    document.getElementById("sensorRayCount").value = worldSettings.sensorRayCount;
+    document.getElementById("sensorRaySpread").value = convertRadiansToDegrees(
+        worldSettings.sensorRaySpread
+    ); // 90º
+    document.getElementById("sensorRayLength").value = worldSettings.sensorRayLength;
+    document.getElementById("showSensors").checked = worldSettings.showSensors;
+
+    // Reset Brain Section
+    document.getElementById("brainComplexity").value = worldSettings.brainComplexity; // Low
+}
+
+function areValidSettings(settings) {
+    let valid = true;
+    if (!settings.roadWidth || (settings.roadWidth < 100 || settings.roadWidth > 500)) {
+        showErrorMessage('roadWidth')
+        valid = false;
+    }
+    if (!settings.buildingWidth || (settings.buildingWidth < 50 || settings.buildingWidth > 200)) {
+        showErrorMessage('buildingWidth')
+        valid = false;
+    }
+    if (!settings.buildingMinLength || (settings.buildingMinLength < 50 || settings.buildingMinLength > 150)) {
+        showErrorMessage('buildingMinLength')
+        valid = false;
+    }
+    if (!settings.spacing || (settings.spacing < 0 || settings.spacing > 100)) {
+        showErrorMessage('spacing')
+        valid = false;
+    }
+    if (!settings.treeSize || (settings.treeSize < 100 || settings.treeSize > 200)) {
+        showErrorMessage('treeSize')
+        valid = false;
+    }
+    if (!settings.treeHeight || (settings.treeHeight < 100 || settings.treeHeight > 300)) {
+        showErrorMessage('treeHeight')
+        valid = false;
+    }
+    if (!settings.simulationNumCars || settings.simulationNumCars < 1) {
+        showErrorMessage('simulationNumCars')
+        valid = false;
+    }
+    if (!settings.simulationDiffFactor || (settings.simulationDiffFactor < 0 || settings.simulationDiffFactor > 1)) {
+        showErrorMessage('simulationDiffFactor')
+        valid = false;
+    }
+    if (!settings.sensorRayCount || (settings.sensorRayCount < 1 || settings.sensorRayCount > 100)) {
+        showErrorMessage('sensorRayCount')
+        valid = false;
+    }
+    if (!settings.sensorRayLength || (settings.sensorRayLength < 50 || settings.sensorRayLength > 200)) {
+        showErrorMessage('sensorRayLength')
+        valid = false;
+    }
+    return valid;
+}
+
+function saveSettings() {
+    const worldSettingsObj = worldSettings.convertValuesToDisplay();
+
+    // Save World Section
+    worldSettingsObj.roadWidth = document.getElementById("roadWidth").value;
+    worldSettingsObj.buildingWidth = document.getElementById("buildingWidth").value;
+    worldSettingsObj.buildingMinLength = document.getElementById("buildingMinLength").value;
+    worldSettingsObj.spacing = document.getElementById("spacing").value;
+    worldSettingsObj.treeSize = document.getElementById("treeSize").value;
+    worldSettingsObj.treeHeight = document.getElementById("treeHeight").value;
+
+    // Save Cars Section
+    worldSettingsObj.carMaxSpeed = document.getElementById("carMaxSpeed").value; // Medium
+    worldSettingsObj.carAcceleration = document.getElementById("carAcceleration").value; // Medium
+
+    // Save Simulation Section
+    worldSettingsObj.simulationNumCars = document.getElementById("simulationNumCars").value;
+    worldSettingsObj.simulationDiffFactor = document.getElementById("simulationDiffFactor").value;
+
+    // Save Sensors Section
+    worldSettingsObj.sensorRayCount = document.getElementById("sensorRayCount").value;
+    worldSettingsObj.sensorRaySpread = convertDegreesToRadians(
+        document.getElementById("sensorRaySpread").value
+    ); // 90º
+    worldSettingsObj.sensorRayLength = document.getElementById("sensorRayLength").value;
+    worldSettingsObj.showSensors = document.getElementById("showSensors").checked;
+
+    // Save Brain Section
+    worldSettingsObj.brainComplexity = document.getElementById("brainComplexity").value; // Low
+
+    const newSettings = Settings.load(worldSettingsObj);
+    if (areValidSettings(newSettings)) {
+        hideErrorMessages();
+        worldSettings = newSettings;
+        worldSettings.save();
+        showSaveConfirmationModal('Settings saved successfully');
+        loadSettingsIntoDisplay();
+    }
+}
+
+function resetSettings() {
+    hideErrorMessages();
+    worldSettings.reset();
+    worldSettings.save();
+    loadSettingsIntoDisplay();
+}
+
+function showSettingsModal() {
+    loadSettingsIntoDisplay();
+    document.getElementById("settingsModal").style.display = "block";
+    hideErrorMessages();
+}
+
+function hideSettingsModal() {
+    document.getElementById("settingsModal").style.display = "none";
+    hideErrorMessages();
 }

@@ -24,6 +24,33 @@ function getNearestSegment(loc, segments, threshold = Number.MAX_SAFE_INTEGER) {
     return nearestSegment;
 }
 
+function tryParseInt(num, defaultVal) {
+    try {
+        return parseInt(num);
+    } catch {
+        return defaultVal;
+    }
+}
+
+function tryParseFloat(num, defaultVal) {
+    try {
+        return parseFloat(num);
+    } catch {
+        return defaultVal;
+    }
+}
+
+function convertDegreesToRadians(angle) {
+    if (typeof (angle) === 'string') {
+        angle = parseInt(angle);
+    }
+    return ((Math.PI * angle) / 180);
+}
+
+function convertRadiansToDegrees(angle) {
+    return ((180 * angle) / Math.PI);
+}
+
 function distance(p1, p2) {
     return Math.hypot(p1.x - p2.x, p1.y - p2.y);
 }

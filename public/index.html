@@ -38,6 +38,14 @@
       >
         📂
       </button>
+      <button
+        onclick="showSettingsModal()"
+        data-toggle="tooltip"
+        data-placement="top"
+        title="World Settings"
+      >
+        ⚙️
+      </button>
       &nbsp; &nbsp;
       <button
         id="graphBtn"
@@ -306,6 +314,345 @@
       </div>
     </div>
 
+    <!-- Modal for settings -->
+    <div id="settingsModal" class="modal" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3 class="modal-title">Settings</h3>
+            <button
+              type="button"
+              class="close"
+              data-dismiss="modal"
+              aria-label="Close"
+              onclick="hideSettingsModal()"
+            >
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form>
+              <!-- World Section -->
+              <div class="form-group">
+                <legend>World</legend>
+                <div class="form-group">
+                  <label for="roadWidth">Road Width</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    value="100"
+                    id="roadWidth"
+                    data-toggle="popover"
+                    data-placement="left"
+                    data-trigger="manual"
+                    data-content="Enter a value between 100 and 500 (inclusive)."
+                    placeholder="Enter road width"
+                  />
+                  <small id="roadWidthError" class="error-message form-text">
+                    Road Width must be between 100 to 500 (inclusive).
+                  </small>
+                </div>
+                <div class="form-group">
+                  <label for="buildingWidth">Building Width</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    value="150"
+                    id="buildingWidth"
+                    data-toggle="popover"
+                    data-placement="left"
+                    data-trigger="manual"
+                    data-content="Enter a value between 50 and 200 (inclusive)."
+                    placeholder="Enter building width"
+                  />
+                  <small
+                    id="buildingWidthError"
+                    class="error-message form-text"
+                  >
+                    Building Width must be between 50 to 200 (inclusive).
+                  </small>
+                </div>
+                <div class="form-group">
+                  <label for="buildingMinLength">Building Minimum Length</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    value="150"
+                    id="buildingMinLength"
+                    data-toggle="popover"
+                    data-placement="left"
+                    data-trigger="manual"
+                    data-content="Enter a value between 50 and 150 (inclusive)."
+                    placeholder="Enter building min length"
+                  />
+                  <small
+                    id="buildingMinLengthError"
+                    class="error-message form-text"
+                  >
+                    Building Minimum Length must be between 50 to 150
+                    (inclusive).
+                  </small>
+                </div>
+                <div class="form-group">
+                  <label for="spacing">Spacing</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    value="50"
+                    id="spacing"
+                    data-toggle="popover"
+                    data-placement="left"
+                    data-trigger="manual"
+                    data-content="Enter a value between 0 and 100 (inclusive)."
+                    placeholder="Enter spacing"
+                  />
+                  <small id="spacingError" class="error-message form-text">
+                    Spacing must be between 0 to 100 (inclusive).
+                  </small>
+                </div>
+                <div class="form-group">
+                  <label for="treeSize">Tree size</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    value="160"
+                    id="treeSize"
+                    data-toggle="popover"
+                    data-placement="left"
+                    data-trigger="manual"
+                    data-content="Enter a value between 100 and 200 (inclusive)."
+                    placeholder="Enter tree size"
+                  />
+                  <small id="treeSizeError" class="error-message form-text">
+                    Tree Size must be between 100 to 200 (inclusive).
+                  </small>
+                </div>
+                <div class="form-group">
+                  <label for="treeHeight">Tree height</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    value="50"
+                    id="treeHeight"
+                    data-toggle="popover"
+                    data-placement="left"
+                    data-trigger="manual"
+                    data-content="Enter a value between 100 and 300 (inclusive)."
+                    placeholder="Enter tree height"
+                  />
+                  <small id="treeHeightError" class="error-message form-text">
+                    Tree Height must be between 100 to 300 (inclusive).
+                  </small>
+                </div>
+              </div>
+              <br />
+              <hr />
+
+              <!-- Cars Section -->
+              <div class="form-group">
+                <legend>Cars</legend>
+                <div class="form-group">
+                  <label for="carMaxSpeed">Max Speed</label>
+                  <select class="form-control" id="carMaxSpeed">
+                    <option value="2">Slow</option>
+                    <option value="3" selected>Medium</option>
+                    <option value="4">Fast</option>
+                    <option value="5">Very Fast</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="carAcceleration">Acceleration</label>
+                  <select class="form-control" id="carAcceleration">
+                    <option value="0.2">Low</option>
+                    <option value="0.3" selected>Medium</option>
+                    <option value="0.4">High</option>
+                  </select>
+                </div>
+              </div>
+              <br />
+              <hr />
+
+              <!-- Simulation Section -->
+              <div class="form-group">
+                <legend>Simulation</legend>
+                <div class="form-group">
+                  <label for="simulationNumCars">Number of cars</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    value="5"
+                    id="simulationNumCars"
+                    aria-describedby="simulationNumCars"
+                    data-toggle="popover"
+                    data-placement="left"
+                    data-trigger="manual"
+                    data-content="Whole number greater than 0 required."
+                    placeholder="Enter number of cars"
+                  />
+                  <small
+                    id="simulationNumCarsError"
+                    class="error-message form-text"
+                  >
+                    Number of cars for simulation must be greater than 0.
+                  </small>
+                </div>
+                <div class="form-group">
+                  <label for="simulationDiffFactor"
+                    >Differentiation Factor</label
+                  >
+                  <input
+                    type="number"
+                    class="form-control"
+                    value="0.1"
+                    id="simulationDiffFactor"
+                    aria-describedby="simulationDiffFactor"
+                    data-toggle="popover"
+                    data-placement="left"
+                    data-trigger="manual"
+                    data-content="Keep the differentiation factor in the range 0 to 1 (inclusive)."
+                    placeholder="Enter differentiation factor"
+                  />
+                  <small
+                    id="simulationDiffFactorError"
+                    class="error-message form-text"
+                  >
+                    Differentiation Factor for simulation must be between 0 and
+                    1 (inclusive).
+                  </small>
+                </div>
+              </div>
+              <br />
+              <hr />
+
+              <!-- Sensors Section -->
+              <div class="form-group">
+                <legend>Sensors</legend>
+                <div class="form-group">
+                  <label for="sensorRayCount">Ray Count</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    value="5"
+                    id="sensorRayCount"
+                    aria-describedby="sensorRayCount"
+                    data-toggle="popover"
+                    data-placement="left"
+                    data-trigger="manual"
+                    data-content="Keep the sensor ray count in the range 1 to 100 (inclusive)."
+                    placeholder="Enter sensor ray count"
+                  />
+                  <small
+                    id="sensorRayCountError"
+                    class="error-message form-text"
+                  >
+                    Sensor ray count must be between 1 and 100 (inclusive).
+                  </small>
+                </div>
+                <div class="form-group">
+                  <label for="sensorRaySpread">Ray Spread</label>
+                  <select class="form-control" id="sensorRaySpread">
+                    <option value="90">90º</option>
+                    <option value="180">180º</option>
+                    <option value="270">270º</option>
+                    <option value="360">360º</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="sensorRayLength">Ray Length</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    value="100"
+                    id="sensorRayLength"
+                    aria-describedby="sensorRayLength"
+                    data-toggle="popover"
+                    data-placement="left"
+                    data-trigger="manual"
+                    data-content="Keep the sensor ray length in the range 50 to 200 (inclusive)."
+                    placeholder="Enter sensor ray length"
+                  />
+                  <small
+                    id="sensorRayLengthError"
+                    class="error-message form-text"
+                  >
+                    Sensor ray length must be between 50 and 200 (inclusive).
+                  </small>
+                </div>
+                <div class="form-group flex">
+                  <label for="showSensors">Show Sensors</label>
+                  <input
+                    type="checkbox"
+                    class="form-check-input"
+                    id="showSensors"
+                  />
+                </div>
+              </div>
+              <br />
+              <hr />
+
+              <!-- Brain Section -->
+              <div class="form-group">
+                <legend>Brain</legend>
+                <div class="form-group">
+                  <label for="brainComplexity">Complexity</label>
+                  <select class="form-control" id="brainComplexity">
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                  </select>
+                </div>
+              </div>
+              <br />
+            </form>
+          </div>
+          <div class="modal-footer">
+            <div>
+              <button
+                type="button"
+                class="btn btn-dark"
+                onclick="resetSettings()"
+              >
+                Reset to Default
+              </button>
+            </div>
+            <div>
+              <button
+                type="button"
+                class="btn btn-primary"
+                onclick="saveSettings()"
+              >
+                Save
+              </button>
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-dismiss="modal"
+                onclick="hideSettingsModal()"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script
+      src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+      integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"
+      integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"
+      integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+      crossorigin="anonymous"
+    ></script>
+    <script src="js/settings.js"></script>
     <script src="js/world.js"></script>
     <script src="js/viewport.js"></script>
     <script src="js/markings/marking.js"></script>
