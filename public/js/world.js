@@ -94,12 +94,6 @@ class World {
         this.laneGuides.push(...this.#generateLaneGuides());
     }
 
-    changeTrafficSide(isLHT) {
-        this.settings.isLHT = isLHT;
-        this.settings.save();
-        this.markings.length = 0;
-    }
-
     #generateLaneGuides() {
         const tmpEnvelopes = [];
         for (const segment of this.graph.segments) {
@@ -336,7 +330,7 @@ class World {
         }
     }
 
-    draw(ctx, viewpoint) {
+    draw(ctx, viewpoint, renderRadius = 1000) {
         this.#removeDisconnectedMarkings();
         this.#updateTrafficLights();
         this.#updateCars();
@@ -359,7 +353,10 @@ class World {
         }
 
         // Buildings & Trees
-        const items = [...this.buildings, ...this.trees];
+        const items = [...this.buildings, ...this.trees].filter(
+            (i) => i.base.distanceToPoint(viewpoint) < renderRadius
+        );
+
         // Sort buildings and trees so that the items far from the 
         // viewpoint are drawn first and then the nearer walls 
         // to overlap them

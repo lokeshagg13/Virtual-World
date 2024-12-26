@@ -127,6 +127,14 @@ function lerp2D(A, B, t) {
     return new Point(lerp(A.x, B.x, t), lerp(A.y, B.y, t));
 }
 
+function invLerp(a, b, v) {
+    return (v - a) / (b - a);
+}
+
+function normalizeValue(value, fromMin, fromMax, toMin, toMax) {
+    return lerp(toMin, toMax, invLerp(fromMin, fromMax, value));
+}
+
 function getRandomColor() {
     const hue = 290 + Math.random() * 260;
     return "hsl(" + hue + ", 100%, 60%";

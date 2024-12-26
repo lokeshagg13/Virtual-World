@@ -53,7 +53,10 @@ function animate() {
         viewport.setOffset(world.carToFollow.center);
     }
     const viewpoint = scale(viewport.getOffset(), -1);
-    world.draw(ctx, viewpoint);
+    const renderRadius = viewport.getScreenRadius();
+
+    world.draw(ctx, viewpoint, renderRadius);
+
     ctx.globalAlpha = 0.3;
     for (const tool of Object.values(tools)) {
         tool.editor.display();
@@ -156,6 +159,7 @@ function disableEditors() {
 }
 
 let isTrafficSideChangedConfirmed = false;
+
 function showTrafficSideChangeConfirmationModal() {
     document.getElementById("trafficSideChangeModal").style.display =
         "flex";
@@ -165,6 +169,7 @@ function confirmTrafficSideChange() {
     document.getElementById("trafficSideChangeModal").style.display =
         "none";
     isTrafficSideChangedConfirmed = true;
+    world.markings.length = 0;
     saveSettings();
 }
 

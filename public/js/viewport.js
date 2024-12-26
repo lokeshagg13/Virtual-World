@@ -4,6 +4,7 @@ class Viewport {
         this.ctx = canvas.getContext("2d");
 
         this.zoom = zoom;
+        this.zoomRange = [1, 5];
         this.center = new Point(canvas.width / 2, canvas.height / 2);
         this.offset = offset ? offset : scale(this.center, -1);
 
@@ -45,6 +46,11 @@ class Viewport {
         }
     }
 
+    getScreenRadius() {
+        const factor = normalizeValue(viewport.zoom, this.zoomRange[0], this.zoomRange[1], 0.6, 2.5);
+        return 2 * this.canvas.width * factor;
+    }
+
     #addEventListeners() {
         this.canvas.addEventListener("mousewheel", this.#handleMouseWheel.bind(this));
         this.canvas.addEventListener("mousedown", this.#handleMouseDown.bind(this));
@@ -83,7 +89,6 @@ class Viewport {
         const dir = Math.sign(ev.deltaY);
         const step = 0.1;
         this.zoom += dir * step;
-        this.zoom = Math.max(1, Math.min(5, this.zoom))
+        this.zoom = Math.max(this.zoomRange[0], Math.min(this.zoomRange[1], this.zoom));
     }
-
 }
