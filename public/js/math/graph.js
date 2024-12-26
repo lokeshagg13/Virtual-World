@@ -73,6 +73,15 @@ class Graph {
         return segments;
     }
 
+    getCenter() {
+        const nodes = graph.points;
+        const minX = Math.min(...nodes.map(n => n.x));
+        const maxX = Math.max(...nodes.map(n => n.x));
+        const minY = Math.min(...nodes.map(n => n.y));
+        const maxY = Math.max(...nodes.map(n => n.y));
+        return new Point((minX + maxX) / 2, (minY + maxY) / 2);
+    }
+
     dispose() {
         this.points.length = 0
         this.segments.length = 0

@@ -35,7 +35,7 @@
         💾
       </button>
       <button
-        onclick="showSelectWorldModal()"
+        onclick="showLoadWorldModal()"
         data-toggle="tooltip"
         data-placement="top"
         title="Load World"
@@ -271,31 +271,59 @@
       </div>
     </div>
 
-    <!-- Modal for selecting a world -->
-    <div id="selectWorldModal" class="modal" tabindex="-1" role="dialog">
+    <!-- Modal for loading world -->
+    <div id="loadWorldModal" class="modal" tabindex="-1" role="dialog">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="selectWorldModalTitle">Select World</h5>
+            <h3 class="modal-title" id="loadWorldModalTitle">Load World</h3>
             <button
               type="button"
               class="close"
               data-dismiss="modal"
               aria-label="Close"
-              onclick="hideSelectWorldModal()"
+              onclick="hideLoadWorldModal()"
             >
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
           <div class="modal-body">
-            <div id="worldList" class="world-list"></div>
+            <!-- Section for Saved Worlds -->
+            <div class="saved-worlds-section">
+              <h5>Select from Saved Worlds</h5>
+              <div id="worldList" class="world-list"></div>
+            </div>
+
+            <div class="divider"><span></span><span>OR</span><span></span></div>
+
+            <!-- Section for Loading from OSM Data -->
+            <div class="osm-data-section">
+              <h5>Load World from OSM Data</h5>
+              <textarea
+                id="osmDataInput"
+                class="form-control"
+                rows="5"
+                placeholder="Paste your OSM data here..."
+                data-toggle="popover"
+                data-placement="left"
+                data-trigger="manual"
+                data-content="Enter valid OSM data here for loading the world."
+              ></textarea>
+              <button
+                type="button"
+                class="btn btn-primary mt-2"
+                onclick="loadWorldFromOSM()"
+              >
+                Load World
+              </button>
+            </div>
           </div>
           <div class="modal-footer">
             <button
               type="button"
               class="btn btn-secondary"
               data-dismiss="modal"
-              onclick="hideSelectWorldModal()"
+              onclick="hideLoadWorldModal()"
             >
               Close
             </button>
@@ -688,6 +716,7 @@
     <script src="js/primitives/segment.js"></script>
     <script src="js/primitives/polygon.js"></script>
     <script src="js/primitives/envelope.js"></script>
+    <script src="js/osm/osm.js"></script>
     <script src="js/main.js"></script>
   </body>
 </html>

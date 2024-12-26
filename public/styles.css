@@ -93,6 +93,14 @@ button {
   z-index: 1100;
 }
 
+#errorModal {
+  z-index: 1100;
+}
+
+#loadingModal {
+  z-index: 1050;
+}
+
 #settingsModal .modal-dialog {
   max-height: 80vh;
   height: 80vh;
@@ -125,21 +133,36 @@ button {
   justify-content: space-around;
 }
 
-#selectWorldModal .modal-dialog {
-  max-height: 50vh;
-  height: 50vh;
+#loadWorldModal .modal-dialog {
+  max-height: 60vh;
+  height: 60vh;
   overflow: auto;
 }
 
-#selectWorldModal .modal-content {
+#loadWorldModal .modal-content {
   height: 100%;
   overflow-y: auto;
 }
 
-#selectWorldModal .modal-body {
+#loadWorldModal .modal-body {
   padding: 15px;
-  max-height: calc(50vh - 120px);
+  max-height: calc(60vh - 120px);
   overflow-y: auto;
+}
+
+#loadWorldModal .modal-body h5 {
+  text-align: center;
+}
+
+#loadWorldModal div.osm-data-section {
+  display: flex;
+  flex-direction: column;
+}
+
+#loadWorldModal div.osm-data-section h5,
+#loadWorldModal div.osm-data-section button {
+  margin-top: 1.5rem !important;
+  margin-bottom: 1.5rem;
 }
 
 .form-group.flex {
@@ -184,4 +207,48 @@ button {
   font-size: 16px;
   color: #333;
   margin: 0.5rem 0;
+}
+
+.divider {
+  display: table;
+  font-size: 24px;
+  text-align: center;
+  width: 75%;
+  margin: 20px auto;
+}
+
+.divider span {
+  display: table-cell;
+  position: relative;
+}
+
+.divider span:first-child,
+.divider span:last-child {
+  width: 50%;
+  top: 15px;
+  -moz-background-size: 100% 2px;
+  background-size: 100% 2px;
+  background-position: 0 0, 0 100%;
+  background-repeat: no-repeat;
+}
+
+.divider span:first-child {
+  background-image: -webkit-linear-gradient(180deg, transparent, #000);
+  background-image: -moz-linear-gradient(180deg, transparent, #000);
+  background-image: -o-linear-gradient(180deg, transparent, #000);
+  background-image: linear-gradient(90deg, transparent, #000);
+}
+
+.divider span:nth-child(2) {
+  color: #000;
+  padding: 0px 20px;
+  width: auto;
+  white-space: nowrap;
+}
+
+.divider span:last-child {
+  background-image: -webkit-linear-gradient(180deg, #000, transparent);
+  background-image: -moz-linear-gradient(180deg, #000, transparent);
+  background-image: -o-linear-gradient(180deg, #000, transparent);
+  background-image: linear-gradient(90deg, #000, transparent);
 }

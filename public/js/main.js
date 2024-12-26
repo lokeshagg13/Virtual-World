@@ -45,9 +45,12 @@ animate();
 
 function animate() {
     viewport.reset();
-    if (graph.hash() != oldGraphHash) {
+    if (world.graph.hash() != oldGraphHash) {
+        showLoadingModal();
         world.generate();
-        oldGraphHash = graph.hash();
+        hideLoadingModal();
+        viewport.setOffset(world.graph.getCenter());
+        oldGraphHash = world.graph.hash();
     }
     if (world.carToFollow) {
         viewport.setOffset(world.carToFollow.center);
@@ -120,10 +123,10 @@ function loadWorldData(worldId) {
             return response.json();
         })
         .then((data) => {
-            const selectedWorld = data.world;
-            world = World.load(selectedWorld); // Load the world data
+            const loadedWorld = data.world;
+            world = World.load(loadedWorld); // Load the world data
             world.save();
-            document.getElementById("selectWorldModal").style.display = "none";
+            document.getElementById("loadWorldModal").style.display = "none";
             showLoadingModal();
             setTimeout(() => {
                 location.reload();
@@ -132,9 +135,26 @@ function loadWorldData(worldId) {
         })
         .catch((error) => {
             console.error("Error loading world:", error);
-            document.getElementById("selectWorldModal").style.display = "none";
+            document.getElementById("loadWorldModal").style.display = "none";
             showErrorModal("Error loading the world.");
         });
+}
+
+function loadWorldFromOSM() {
+    const osmDataContainer = document.getElementById('osmDataInput');
+    if (osmDataContainer.value === "") {
+        showTooltip('osmDataInput');
+        return;
+    }
+    const osmParsedData = OSM.parseRoads(JSON.parse(osmDataContainer.value));
+    if (osmParsedData.error) {
+        showErrorModal(osmParsedData.message);
+        return;
+    }
+
+    world.graph.points = osmParsedData.points;
+    world.graph.segments = osmParsedData.segments;
+    hideLoadWorldModal();
 }
 
 function setMode(mode) {
@@ -207,7 +227,7 @@ function hideLoadingModal() {
     document.getElementById("loadingModal").style.display = "none";
 }
 
-function showSelectWorldModal() {
+function showLoadWorldModal() {
     // Fetch the list of worlds from the server
     fetch("http://localhost:3000/api/get-worlds", {
         method: "POST",
@@ -245,7 +265,7 @@ function showSelectWorldModal() {
             } else {
                 worldListContainer.innerHTML = "<p>No saved worlds found.</p>";
             }
-            document.getElementById("selectWorldModal").style.display = "flex";
+            document.getElementById("loadWorldModal").style.display = "flex";
         })
         .catch((error) => {
             console.error("Error fetching worlds:", error);
@@ -253,8 +273,8 @@ function showSelectWorldModal() {
         });
 }
 
-function hideSelectWorldModal() {
-    document.getElementById("selectWorldModal").style.display = "none";
+function hideLoadWorldModal() {
+    document.getElementById("loadWorldModal").style.display = "none";
 }
 
 function saveSimulationResult() {
