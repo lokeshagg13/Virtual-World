@@ -74,10 +74,6 @@ button {
   text-align: right;
 }
 
-#trafficToggle {
-  display: none;
-}
-
 #trafficToggle:checked + .slider-container .slider-button {
   left: 48px;
   background-color: #076057;
@@ -90,6 +86,10 @@ button {
 }
 
 #saveConfirmationModal {
+  z-index: 1100;
+}
+
+#trafficSideChangeModal {
   z-index: 1100;
 }
 
@@ -119,6 +119,10 @@ button {
 #settingsModal small.error-message {
   color: red;
   display: none;
+}
+
+#settingsModal .form-group.flex {
+  justify-content: space-around;
 }
 
 #selectWorldModal .modal-dialog {

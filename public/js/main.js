@@ -155,6 +155,7 @@ function disableEditors() {
     }
 }
 
+let isTrafficSideChangedConfirmed = false;
 function showTrafficSideChangeConfirmationModal() {
     document.getElementById("trafficSideChangeModal").style.display =
         "flex";
@@ -163,14 +164,14 @@ function showTrafficSideChangeConfirmationModal() {
 function confirmTrafficSideChange() {
     document.getElementById("trafficSideChangeModal").style.display =
         "none";
-    document.getElementById("trafficToggle").checked =
-        !pendingTrafficSideChange;
-    world.changeTrafficSide(pendingTrafficSideChange);
+    isTrafficSideChangedConfirmed = true;
+    saveSettings();
 }
 
 function cancelTrafficSideChange() {
     document.getElementById("trafficSideChangeModal").style.display =
         "none";
+    isTrafficSideChangedConfirmed = false;
 }
 
 function showSaveConfirmationModal(message) {
@@ -272,17 +273,12 @@ function resetSimulation() {
 }
 
 let tooltipTimeout;
-let pendingTrafficSideChange = false;
 let tempSettings = JSON.parse(JSON.stringify(world.settings));
 
 function addEventListeners() {
-    document
-        .getElementById("trafficToggle")
-        .addEventListener("change", (ev) => {
-            ev.target.checked = !ev.target.checked; // Prevent immediate change
-            pendingTrafficSideChange = ev.target.checked;
-            showTrafficSideChangeConfirmationModal();
-        });
+    $('#trafficToggle').change((ev) => {
+        tempSettings.isLHT = !ev.target.checked;
+    });
 
     document
         .getElementById("roadWidth")
@@ -508,6 +504,7 @@ function loadSettingsIntoDisplay() {
     document.getElementById("spacing").value = world.settings.spacing;
     document.getElementById("treeSize").value = world.settings.treeSize;
     document.getElementById("treeHeight").value = world.settings.treeHeight;
+    $("#trafficToggle").bootstrapToggle(world.settings.isLHT ? 'off' : 'on');
 
     // Reset Cars Section
     document.getElementById("carMaxSpeed").value = world.settings.carMaxSpeed; // Medium
@@ -577,6 +574,15 @@ function areValidSettings(settings) {
 function saveSettings() {
     hideErrorMessages();
 
+    if (!isTrafficSideChangedConfirmed) {
+        if (tempSettings.isLHT !== world.settings.isLHT) {
+            showTrafficSideChangeConfirmationModal();
+            return;
+        }
+    } else {
+        isTrafficSideChangedConfirmed = false;
+    }
+
     const worldSettingsObj = world.settings.convertValuesToDisplay();
 
     // Save World Section
@@ -586,6 +592,7 @@ function saveSettings() {
     worldSettingsObj.spacing = document.getElementById("spacing").value;
     worldSettingsObj.treeSize = document.getElementById("treeSize").value;
     worldSettingsObj.treeHeight = document.getElementById("treeHeight").value;
+    worldSettingsObj.isLHT = !document.getElementById("trafficToggle").checked;
 
     // Save Cars Section
     worldSettingsObj.carMaxSpeed = document.getElementById("carMaxSpeed").value; // Medium
