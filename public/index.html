@@ -129,6 +129,16 @@
       >
         🔄 🤖
       </button>
+      &nbsp; &nbsp; &nbsp; &nbsp;
+      <button
+        id="exitSimulationModeBtn"
+        onclick="setMode('world')"
+        data-toggle="tooltip"
+        data-placement="top"
+        title="Exit Simulation Mode"
+      >
+        <span class="btn-text text-sm">Exit Simulation Mode</span>
+      </button>
     </div>
     <div class="controls">
       <div class="section">
@@ -470,10 +480,11 @@
                 <div id="worldSettingsForm">
                   <div id="worldSettingsDisclaimer">
                     <small>
-                      Note: World settings can only be modified during the skeleton
-                      editing mode. To modify these settings, select
-                      <b>'Edit Skeleton'</b> and <b>Regenerate the World</b> after
-                      modifying these settings.
+                      Note: World settings can only be modified during the
+                      skeleton editing mode. To modify these settings, select
+                      <b>'Edit Skeleton'</b> and
+                      <b>Regenerate the World</b> after modifying these
+                      settings.
                     </small>
                   </div>
                   <div class="form-group">

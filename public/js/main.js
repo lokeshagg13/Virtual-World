@@ -73,9 +73,7 @@ function setMode(mode) {
     } else if (mode === "simulation") {
         document.querySelector('.simulator').style.display = "flex";
         document.querySelector('#settingsBtn').style.display = "inline-flex";
-        document.querySelector('#loadWorldBtn').style.display = "inline-flex";
-        document.querySelector('#editWorldBtn').style.display = "inline-flex";
-        document.querySelector('#editGraphBtn').style.display = "inline-flex";
+        document.querySelector('#exitSimulationModeBtn').style.display = "inline-flex";
         editors[mode].enable();
     } else {
         document.querySelector('.markings').style.display = "flex";
