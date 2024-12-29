@@ -15,9 +15,12 @@ class Polygon {
         );
     }
 
-    static union(polygons) {
-        Polygon.multiBreak(polygons);
+    static async union(polygons, progressTracker) {
+        progressTracker.reset(polygons.length - 1);
+        console.log(progressTracker)
+        await Polygon.multiBreak(polygons, progressTracker);
         const keptSegments = [];
+        progressTracker.reset(polygons.length);
         for (let i = 0; i < polygons.length; i++) {
             for (const segment of polygons[i].segments) {
                 let keep = true;
@@ -33,19 +36,23 @@ class Polygon {
                     keptSegments.push(segment);
                 }
             }
+            await progressTracker.updateProgress();
+            await new Promise((resolve) => setTimeout(resolve, 0));
         }
         return keptSegments;
     }
 
-    static multiBreak(polygons) {
+    static async multiBreak(polygons, progressTracker) {
         for (let i = 0; i < polygons.length - 1; i++) {
             for (let j = i + 1; j < polygons.length; j++) {
-                Polygon.break(polygons[i], polygons[j])
+                await Polygon.break(polygons[i], polygons[j])
             }
+            progressTracker.updateProgress();
+            await new Promise((resolve) => setTimeout(resolve, 0));
         }
     }
 
-    static break(polygon1, polygon2) {
+    static async break(polygon1, polygon2) {
         const segments1 = polygon1.segments;
         const segments2 = polygon2.segments;
         for (let i = 0; i < segments1.length; i++) {

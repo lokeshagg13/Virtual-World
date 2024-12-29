@@ -22,7 +22,7 @@ class World {
     static load(info) {
         const world = new World(new Graph());
         world.graph = Graph.load(info.graph);
-        world.settings = World.loadSettingsFromLocalStorage();
+        world.settings = Settings.load(info.settings);
 
         world.envelopes = info.envelopes.map(
             (e) => Envelope.load(e)
@@ -63,8 +63,20 @@ class World {
         return world;
     }
 
-    save() {
-        localStorage.setItem("world", JSON.stringify(this));
+    dispose() {
+        this.graph.dispose();
+        this.settings = World.loadSettingsFromLocalStorage();
+
+        this.envelopes = [];
+        this.roadBorders = [];
+        this.buildings = [];
+        this.trees = [];
+        this.laneGuides = [];
+
+        this.markings = [];
+        this.carToFollow = null;
+
+        this.frameCount = 0;
     }
 
     static loadSettingsFromLocalStorage() {
@@ -79,7 +91,8 @@ class World {
         return worldSettings;
     }
 
-    async generate(progressTracker) {
+    async generate() {
+        const progressTracker = new ProgressTracker();
         progressTracker.show();
         try {
             this.envelopes.length = 0;
@@ -89,17 +102,19 @@ class World {
                 this.envelopes.push(
                     new Envelope(segment, this.settings.roadWidth, this.settings.roadRoundness)
                 );
-                progressTracker.updateProgress();
+                await progressTracker.updateProgress();
                 await new Promise((resolve) => setTimeout(resolve, 0));
             }
 
-            this.roadBorders = Polygon.union(this.envelopes.map((envelop) => envelop.polygon));
-            this.buildings = this.#generateBuildings(progressTracker);
-            this.trees = this.#generateTrees(progressTracker);
+            progressTracker.reset(100, 'Generating road borders');
+            this.roadBorders = await Polygon.union(this.envelopes.map((envelop) => envelop.polygon), progressTracker);
+            this.buildings = await this.#generateBuildings(progressTracker);
+            this.trees = await this.#generateTrees(progressTracker);
 
             this.laneGuides.length = 0;
-            this.laneGuides.push(...this.#generateLaneGuides(progressTracker));
+            this.laneGuides.push(...await this.#generateLaneGuides(progressTracker));
         } catch (error) {
+            console.log(error)
             console.error('Error generating the world: ' + error.message);
             return { error: true, message: 'Error generating the world: ' + error.message };
         } finally {
@@ -118,10 +133,10 @@ class World {
                     this.settings.roadRoundness
                 )
             );
-            progressTracker.updateProgress();
+            await progressTracker.updateProgress();
             await new Promise((resolve) => setTimeout(resolve, 0));
         }
-        const segments = Polygon.union(tmpEnvelopes.map((e) => e.polygon));
+        const segments = Polygon.union(tmpEnvelopes.map((e) => e.polygon), progressTracker);
         return segments;
     }
 
@@ -142,8 +157,8 @@ class World {
 
         const trees = [];
         let tryCount = 0;
-        progressTracker.reset(100, 'Generating trees');
-        while (tryCount < 100) {
+        progressTracker.reset(1000, 'Generating trees');
+        while (tryCount < 100 && trees.length < 1000) {
             const p = new Point(
                 lerp(left, right, Math.random()),
                 lerp(bottom, top, Math.random())
@@ -184,18 +199,21 @@ class World {
             if (keep) {
                 trees.push(new Tree(p, this.settings.treeSize, this.settings.treeHeight));
                 tryCount = 0;
+                await progressTracker.updateProgress();
+                await new Promise((resolve) => setTimeout(resolve, 0));
             }
             tryCount++;
-            progressTracker.updateProgress();
-            await new Promise((resolve) => setTimeout(resolve, 0));
         }
+        progressTracker.counter = progressTracker.maxCount;
+        await progressTracker.updateProgress();
+        await new Promise((resolve) => setTimeout(resolve, 0));
         return trees;
     }
 
     async #generateBuildings(progressTracker) {
         // Creating building region envelopes
         const tmpEnvelopes = [];
-        progressTracker.reset(this.graph.segments.length, 'Generating buildings');
+        progressTracker.reset(this.graph.segments.length, 'Searching for suitable building lands');
         for (const segment of this.graph.segments) {
             tmpEnvelopes.push(
                 new Envelope(
@@ -204,16 +222,16 @@ class World {
                     this.settings.roadRoundness
                 )
             );
-            progressTracker.updateProgress();
+            await progressTracker.updateProgress();
             await new Promise((resolve) => setTimeout(resolve, 0));
         }
 
-        const guides = Polygon.union(tmpEnvelopes.map((e) => e.polygon));
+        const guides = await Polygon.union(tmpEnvelopes.map((e) => e.polygon), progressTracker);
         const buildingSuitableGuides = guides.filter((segment) => (segment.length() > this.settings.buildingMinLength));
 
         // Creating supports for buildings using the buildings
         const buildingSupports = [];
-        progressTracker.reset(buildingSuitableGuides.length, 'Generating buildings');
+        progressTracker.reset(buildingSuitableGuides.length, 'Generating building supports');
         for (let segment of buildingSuitableGuides) {
             const length = segment.length() + this.settings.spacing;
             const buildingCount = Math.floor(
@@ -232,18 +250,22 @@ class World {
                 q2 = add(q1, scale(direction, buildingLength));
                 buildingSupports.push(new Segment(q1, q2));
             }
-            progressTracker.updateProgress();
+            await progressTracker.updateProgress();
             await new Promise((resolve) => setTimeout(resolve, 0));
         }
 
         // Creating rectangular bases for buildings using the supports
         const buildingBases = [];
+        progressTracker.reset(buildingSupports.length, 'Generating buildings floors');
         for (let segment of buildingSupports) {
             buildingBases.push(new Envelope(segment, this.settings.buildingWidth).polygon);
+            await progressTracker.updateProgress();
+            await new Promise((resolve) => setTimeout(resolve, 0));
         }
 
         // Removing any overlapping building bases
         const eps = 0.001;
+        progressTracker.reset(buildingSupports.length - 1, 'Generating building floors');
         for (let i = 0; i < buildingBases.length - 1; i++) {
             for (let j = i + 1; j < buildingBases.length; j++) {
                 if (
@@ -254,6 +276,8 @@ class World {
                     j--;
                 }
             }
+            await progressTracker.updateProgress();
+            await new Promise((resolve) => setTimeout(resolve, 0));
         }
 
         return buildingBases.map((base) => new Building(base));

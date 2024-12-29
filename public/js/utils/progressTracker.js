@@ -9,21 +9,26 @@ class ProgressTracker {
     }
 
     #incrementCounter() {
-        this.counter += 1;
+        if (this.counter < this.maxCount) {
+            this.counter += 1;
+        }
     }
 
     #updateInfo() {
-        $('#progressBarModal .title').innerText = (this.info + this.dots);
+        document.querySelector('#progressBarModal .title').innerText = (this.info + ' ' + this.dots);
     }
 
     #updateCount() {
-        $('#progressBarModal .progress-bar').css("width", this.percentage + "%");
-        $('#progressBarModal .progress-bar').innerText = this.percentage + "%";
+        $('#progressBarModal .progress-bar').prop("aria-valuenow", this.percentage === 0 ? "0" : this.percentage + "");
+        $('#progressBarModal .progress-bar').css("width", this.percentage === 0 ? "0" : this.percentage + "%");
+        $('#progressBarModal .progress-bar').css("width", this.percentage === 0 ? "0" : this.percentage + "%");
+
+        document.querySelector('#progressBarModal .progress-bar').innerText = this.percentage + "%";
     }
 
     updateProgress() {
         this.#incrementCounter();
-        const newPercentage = Math.floor(this.counter / this.maxCount) * 100;
+        const newPercentage = Math.floor(this.counter / this.maxCount * 100);
         if (newPercentage !== this.percentage) {
             this.percentage = newPercentage;
             this.#updateCount();
@@ -31,25 +36,29 @@ class ProgressTracker {
         this.#updateInfo();
     }
 
-    reset(maxCount, info) {
+    reset(maxCount, info = "") {
         this.counter = 0;
         this.maxCount = maxCount;
-        this.info = info;
+        this.percentage = 0;
+        if (info !== "") {
+            this.info = info;
+        }
         if (this.dotsInterval) {
             clearInterval(this.dotsInterval);
         }
         this.dotsInterval = setInterval(() => {
             if (this.dots.length % 4 === 0) {
-                this.dots = 0
+                this.dots = ''
             }
-            this.dots = '.';
+            this.dots += '.';
+            this.#updateInfo();
         }, 1000);
         this.#updateCount();
         this.#updateInfo();
     }
 
     show() {
-        document.getElementById('progressBarModal').style.display = "block";
+        document.getElementById('progressBarModal').style.display = "flex";
     }
 
     hide() {
