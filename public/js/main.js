@@ -341,6 +341,11 @@ function resetSimulation() {
     editors["simulation"].running = false;
 }
 
+function exitSimulationMode() {
+    resetSimulation();
+    setMode('world');
+}
+
 function addEventListeners() {
     $('#trafficToggle').change((ev) => {
         tempSettings.isLHT = !ev.target.checked;

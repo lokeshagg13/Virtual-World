@@ -265,7 +265,7 @@ class World {
 
         // Removing any overlapping building bases
         const eps = 0.001;
-        progressTracker.reset(buildingSupports.length - 1, 'Generating building floors');
+        progressTracker.reset(buildingSupports.length - 1, 'Generating building walls and roofs');
         for (let i = 0; i < buildingBases.length - 1; i++) {
             for (let j = i + 1; j < buildingBases.length; j++) {
                 if (
