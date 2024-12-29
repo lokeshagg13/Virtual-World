@@ -65,6 +65,7 @@ function setMode(mode) {
     currentMode = mode;
     if (mode === "graph") {
         document.querySelector('#clearCanvasBtn').style.display = "inline-flex";
+        document.querySelector('#settingsBtn').style.display = "inline-flex";
         document.querySelector('#loadWorldBtn').style.display = "inline-flex";
         document.querySelector('#loadOsmGraphBtn').style.display = "inline-flex";
         document.querySelector('#generateWorldBtn').style.display = "inline-flex";
@@ -118,7 +119,7 @@ function resetMarkingButtons() {
 
 async function generateWorld() {
     if (world.graph.points.length === 0) {
-        showErrorModal('A foundational graph structure is required for the world but is currently missing. Please create a graph to proceed');
+        showErrorModal('A foundational skeleton structure is required for the world but is currently missing. Please create a skeleton using nodes and edges to proceed');
         return;
     }
     await world.generate();
@@ -691,6 +692,8 @@ function saveSettings() {
 
 function resetSettings() {
     hideErrorMessages();
+    showTooltip('saveSettingsBtn');
+    setTimeout(() => hideTooltip('saveSettingsBtn'), 3000)
     world.settings.reset();
     world.settings.save();
     loadSettingsIntoDisplay();
@@ -698,6 +701,17 @@ function resetSettings() {
 
 function showSettingsModal() {
     loadSettingsIntoDisplay();
+    if (currentMode === "graph") {
+        document.getElementById('worldSettingsDisclaimer').style.display = 'none';
+        const worldSettingsInputs = document.querySelectorAll('#worldSettingsForm input');
+        worldSettingsInputs.forEach((i) => i.removeAttribute('disabled'));
+        $('#trafficToggle').bootstrapToggle('enable');
+    } else {
+        document.getElementById('worldSettingsDisclaimer').style.display = 'block';
+        const worldSettingsInputs = document.querySelectorAll('#worldSettingsForm input');
+        worldSettingsInputs.forEach((i) => i.setAttribute('disabled', true));
+        $('#trafficToggle').bootstrapToggle('disable');
+    }
     document.getElementById("settingsModal").style.display = "block";
     hideErrorMessages();
 }

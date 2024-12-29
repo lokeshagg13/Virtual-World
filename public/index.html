@@ -169,11 +169,11 @@
           onclick="showLoadOsmGraphModal()"
           data-toggle="tooltip"
           data-placement="top"
-          title="Load Graph from OSM Data"
+          title="Load Skeleton from OSM Data"
         >
           🗺️
           <span class="btn-text text-sm">
-            <div>Load Graph</div>
+            <div>Load Skeleton</div>
             <div>(using OSM data)</div>
           </span>
         </button>
@@ -214,10 +214,10 @@
           onclick="setMode('graph')"
           data-toggle="tooltip"
           data-placement="top"
-          title="Graph Editor"
+          title="Skeleton Editor"
         >
           ⬟
-          <span class="btn-text">Edit Graph</span>
+          <span class="btn-text">Edit Skeleton</span>
         </button>
         <button
           id="simulationBtn"
@@ -401,7 +401,7 @@
         <div class="modal-content">
           <div class="modal-header">
             <h4 class="modal-title" id="loadOsmGraphModalTitle">
-              Load Graph from OSM Data
+              Load Skeleton from OSM Data
             </h4>
             <button
               type="button"
@@ -467,127 +467,139 @@
               <!-- World Section -->
               <div class="form-group">
                 <legend>World</legend>
-                <div class="form-group">
-                  <label for="roadWidth">Road Width</label>
-                  <input
-                    type="number"
-                    class="form-control"
-                    value="100"
-                    id="roadWidth"
-                    data-toggle="popover"
-                    data-placement="left"
-                    data-trigger="manual"
-                    data-content="Enter a value between 100 and 500 (inclusive)."
-                    placeholder="Enter road width"
-                  />
-                  <small id="roadWidthError" class="error-message form-text">
-                    Road Width must be between 100 to 500 (inclusive).
-                  </small>
-                </div>
-                <div class="form-group">
-                  <label for="buildingWidth">Building Width</label>
-                  <input
-                    type="number"
-                    class="form-control"
-                    value="150"
-                    id="buildingWidth"
-                    data-toggle="popover"
-                    data-placement="left"
-                    data-trigger="manual"
-                    data-content="Enter a value between 50 and 200 (inclusive)."
-                    placeholder="Enter building width"
-                  />
-                  <small
-                    id="buildingWidthError"
-                    class="error-message form-text"
-                  >
-                    Building Width must be between 50 to 200 (inclusive).
-                  </small>
-                </div>
-                <div class="form-group">
-                  <label for="buildingMinLength">Building Minimum Length</label>
-                  <input
-                    type="number"
-                    class="form-control"
-                    value="150"
-                    id="buildingMinLength"
-                    data-toggle="popover"
-                    data-placement="left"
-                    data-trigger="manual"
-                    data-content="Enter a value between 50 and 150 (inclusive)."
-                    placeholder="Enter building min length"
-                  />
-                  <small
-                    id="buildingMinLengthError"
-                    class="error-message form-text"
-                  >
-                    Building Minimum Length must be between 50 to 150
-                    (inclusive).
-                  </small>
-                </div>
-                <div class="form-group">
-                  <label for="spacing">Spacing</label>
-                  <input
-                    type="number"
-                    class="form-control"
-                    value="50"
-                    id="spacing"
-                    data-toggle="popover"
-                    data-placement="left"
-                    data-trigger="manual"
-                    data-content="Enter a value between 0 and 100 (inclusive)."
-                    placeholder="Enter spacing"
-                  />
-                  <small id="spacingError" class="error-message form-text">
-                    Spacing must be between 0 to 100 (inclusive).
-                  </small>
-                </div>
-                <div class="form-group">
-                  <label for="treeSize">Tree size</label>
-                  <input
-                    type="number"
-                    class="form-control"
-                    value="160"
-                    id="treeSize"
-                    data-toggle="popover"
-                    data-placement="left"
-                    data-trigger="manual"
-                    data-content="Enter a value between 100 and 200 (inclusive)."
-                    placeholder="Enter tree size"
-                  />
-                  <small id="treeSizeError" class="error-message form-text">
-                    Tree Size must be between 100 to 200 (inclusive).
-                  </small>
-                </div>
-                <div class="form-group">
-                  <label for="treeHeight">Tree height</label>
-                  <input
-                    type="number"
-                    class="form-control"
-                    value="50"
-                    id="treeHeight"
-                    data-toggle="popover"
-                    data-placement="left"
-                    data-trigger="manual"
-                    data-content="Enter a value between 100 and 300 (inclusive)."
-                    placeholder="Enter tree height"
-                  />
-                  <small id="treeHeightError" class="error-message form-text">
-                    Tree Height must be between 100 to 300 (inclusive).
-                  </small>
-                </div>
-                <div class="form-group flex">
-                  <label for="trafficToggle"> Left Hand Traffic </label>
-                  <input
-                    type="checkbox"
-                    id="trafficToggle"
-                    data-toggle="toggle"
-                    data-off="LHT"
-                    data-offstyle="success"
-                    data-on="RHT"
-                    data-onstyle="info"
-                  />
-                  <label for="trafficToggle"> Right Hand Traffic </label>
+                <div id="worldSettingsForm">
+                  <div id="worldSettingsDisclaimer">
+                    <small>
+                      Note: World settings can only be modified during the skeleton
+                      editing mode. To modify these settings, select
+                      <b>'Edit Skeleton'</b> and <b>Regenerate the World</b> after
+                      modifying these settings.
+                    </small>
+                  </div>
+                  <div class="form-group">
+                    <label for="roadWidth">Road Width</label>
+                    <input
+                      type="number"
+                      class="form-control"
+                      value="100"
+                      id="roadWidth"
+                      data-toggle="popover"
+                      data-placement="left"
+                      data-trigger="manual"
+                      data-content="Enter a value between 100 and 500 (inclusive)."
+                      placeholder="Enter road width"
+                    />
+                    <small id="roadWidthError" class="error-message form-text">
+                      Road Width must be between 100 to 500 (inclusive).
+                    </small>
+                  </div>
+                  <div class="form-group">
+                    <label for="buildingWidth">Building Width</label>
+                    <input
+                      type="number"
+                      class="form-control"
+                      value="150"
+                      id="buildingWidth"
+                      data-toggle="popover"
+                      data-placement="left"
+                      data-trigger="manual"
+                      data-content="Enter a value between 50 and 200 (inclusive)."
+                      placeholder="Enter building width"
+                    />
+                    <small
+                      id="buildingWidthError"
+                      class="error-message form-text"
+                    >
+                      Building Width must be between 50 to 200 (inclusive).
+                    </small>
+                  </div>
+                  <div class="form-group">
+                    <label for="buildingMinLength"
+                      >Building Minimum Length</label
+                    >
+                    <input
+                      type="number"
+                      class="form-control"
+                      value="150"
+                      id="buildingMinLength"
+                      data-toggle="popover"
+                      data-placement="left"
+                      data-trigger="manual"
+                      data-content="Enter a value between 50 and 150 (inclusive)."
+                      placeholder="Enter building min length"
+                    />
+                    <small
+                      id="buildingMinLengthError"
+                      class="error-message form-text"
+                    >
+                      Building Minimum Length must be between 50 to 150
+                      (inclusive).
+                    </small>
+                  </div>
+                  <div class="form-group">
+                    <label for="spacing">Spacing</label>
+                    <input
+                      type="number"
+                      class="form-control"
+                      value="50"
+                      id="spacing"
+                      data-toggle="popover"
+                      data-placement="left"
+                      data-trigger="manual"
+                      data-content="Enter a value between 0 and 100 (inclusive)."
+                      placeholder="Enter spacing"
+                    />
+                    <small id="spacingError" class="error-message form-text">
+                      Spacing must be between 0 to 100 (inclusive).
+                    </small>
+                  </div>
+                  <div class="form-group">
+                    <label for="treeSize">Tree size</label>
+                    <input
+                      type="number"
+                      class="form-control"
+                      value="160"
+                      id="treeSize"
+                      data-toggle="popover"
+                      data-placement="left"
+                      data-trigger="manual"
+                      data-content="Enter a value between 100 and 200 (inclusive)."
+                      placeholder="Enter tree size"
+                    />
+                    <small id="treeSizeError" class="error-message form-text">
+                      Tree Size must be between 100 to 200 (inclusive).
+                    </small>
+                  </div>
+                  <div class="form-group">
+                    <label for="treeHeight">Tree height</label>
+                    <input
+                      type="number"
+                      class="form-control"
+                      value="50"
+                      id="treeHeight"
+                      data-toggle="popover"
+                      data-placement="left"
+                      data-trigger="manual"
+                      data-content="Enter a value between 100 and 300 (inclusive)."
+                      placeholder="Enter tree height"
+                    />
+                    <small id="treeHeightError" class="error-message form-text">
+                      Tree Height must be between 100 to 300 (inclusive).
+                    </small>
+                  </div>
+                  <div class="form-group flex">
+                    <label for="trafficToggle"> Left Hand Traffic </label>
+                    <input
+                      type="checkbox"
+                      id="trafficToggle"
+                      data-toggle="toggle"
+                      data-off="LHT"
+                      data-offstyle="success"
+                      data-on="RHT"
+                      data-onstyle="info"
+                    />
+                    <label for="trafficToggle"> Right Hand Traffic </label>
+                  </div>
                 </div>
               </div>
               <br />
@@ -753,18 +765,26 @@
           <div class="modal-footer">
             <div>
               <button
+                id="resetSettingsBtn"
                 type="button"
                 class="btn btn-dark"
                 onclick="resetSettings()"
+                aria-describedby="resetSettingsBtn"
               >
                 Reset to Default
               </button>
             </div>
             <div>
               <button
+                id="saveSettingsBtn"
                 type="button"
                 class="btn btn-primary"
                 onclick="saveSettings()"
+                aria-describedby="saveSettingsBtn"
+                data-toggle="popover"
+                data-placement="top"
+                data-trigger="manual"
+                data-content="Remember to save the default settings for your world."
               >
                 Save
               </button>

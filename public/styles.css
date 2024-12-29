@@ -118,7 +118,6 @@ button {
   font-size: medium;
 }
 
-
 #settingsModal .modal-dialog {
   max-height: 80vh;
   height: 80vh;
@@ -149,6 +148,14 @@ button {
 
 #settingsModal .form-group.flex {
   justify-content: space-around;
+}
+
+#worldSettingsDisclaimer {
+  border: 1px solid;
+  padding: 0.6rem;
+  text-align: justify;
+  font-style: italic;
+  margin-bottom: 0.5rem;
 }
 
 #loadWorldModal .modal-dialog {
