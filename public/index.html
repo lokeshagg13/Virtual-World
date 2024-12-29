@@ -14,61 +14,31 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <h1>Lokesh's World</h1>
+    <div class="header">
+      <h1>Lokesh's World</h1>
+      <div class="section">
+        <button
+          id="clearCanvasBtn"
+          onclick="clearCanvas()"
+          data-toggle="tooltip"
+          data-placement="top"
+          title="Clear Canvas"
+        >
+          🗑️
+        </button>
+        <button
+          id="settingsBtn"
+          onclick="showSettingsModal()"
+          data-toggle="tooltip"
+          data-placement="top"
+          title="World Settings"
+        >
+          ⚙️
+        </button>
+      </div>
+    </div>
     <canvas id="myCanvas"></canvas>
-    <div id="controls">
-      <button
-        type="button"
-        onclick="disposeEverything()"
-        data-toggle="tooltip"
-        data-placement="top"
-        title="Clear Everything"
-      >
-        🗑️ All
-      </button>
-      <button
-        onclick="saveWorldData()"
-        data-toggle="tooltip"
-        data-placement="top"
-        title="Save World"
-      >
-        💾
-      </button>
-      <button
-        onclick="showLoadWorldModal()"
-        data-toggle="tooltip"
-        data-placement="top"
-        title="Load World"
-      >
-        📂
-      </button>
-      <button
-        onclick="showSettingsModal()"
-        data-toggle="tooltip"
-        data-placement="top"
-        title="World Settings"
-      >
-        ⚙️
-      </button>
-      &nbsp; &nbsp;
-      <button
-        id="graphBtn"
-        onclick="setMode('graph')"
-        data-toggle="tooltip"
-        data-placement="top"
-        title="Graph Editor Mode"
-      >
-        🌐
-      </button>
-      <button
-        id="simulationBtn"
-        onclick="setMode('simulation')"
-        data-toggle="tooltip"
-        data-placement="top"
-        title="Simulation Mode"
-      >
-        🤖
-      </button>
+    <div class="markings">
       <button
         id="stopBtn"
         onclick="setMode('stop')"
@@ -78,6 +48,7 @@
       >
         🛑
       </button>
+      &nbsp;
       <button
         id="crossingBtn"
         onclick="setMode('crossing')"
@@ -87,6 +58,7 @@
       >
         🚶
       </button>
+      &nbsp;
       <button
         id="startBtn"
         onclick="setMode('start')"
@@ -96,6 +68,7 @@
       >
         🚙
       </button>
+      &nbsp;
       <button
         id="parkingBtn"
         onclick="setMode('parking')"
@@ -105,6 +78,7 @@
       >
         🅿️
       </button>
+      &nbsp;
       <button
         id="targetBtn"
         onclick="setMode('target')"
@@ -114,6 +88,7 @@
       >
         🎯
       </button>
+      &nbsp;
       <button
         id="yieldBtn"
         onclick="setMode('yield')"
@@ -123,6 +98,7 @@
       >
         ⚠️
       </button>
+      &nbsp;
       <button
         id="trafficLightBtn"
         onclick="setMode('trafficLight')"
@@ -132,17 +108,8 @@
       >
         🚦
       </button>
-      &nbsp; &nbsp;
-      <button
-        id="disposeMarkingsBtn"
-        onclick="disposeMarkings()"
-        data-toggle="tooltip"
-        data-placement="top"
-        title="Delete Markings"
-      >
-        🗑️ M
-      </button>
-      &nbsp; &nbsp; &nbsp; &nbsp;
+    </div>
+    <div class="simulator">
       <button
         id="saveSimulationBtn"
         onclick="saveSimulationResult()"
@@ -163,6 +130,107 @@
         🔄 🤖
       </button>
     </div>
+    <div class="controls">
+      <div class="section">
+        <button
+          id="loadWorldBtn"
+          onclick="showLoadWorldModal()"
+          data-toggle="tooltip"
+          data-placement="top"
+          title="Load World"
+        >
+          📂
+          <span class="btn-text">Load World</span>
+        </button>
+        <button
+          id="saveWorldBtn"
+          onclick="saveWorldData()"
+          data-toggle="tooltip"
+          data-placement="top"
+          title="Save World"
+        >
+          💾
+          <span class="btn-text">Save World</span>
+        </button>
+        <button
+          id="editWorldBtn"
+          onclick="setMode('world')"
+          data-toggle="tooltip"
+          data-placement="top"
+          title="World Editor Mode"
+        >
+          🌐
+          <span class="btn-text">Edit World</span>
+        </button>
+      </div>
+      <div class="section">
+        <button
+          id="loadOsmGraphBtn"
+          onclick="showLoadOsmGraphModal()"
+          data-toggle="tooltip"
+          data-placement="top"
+          title="Load Graph from OSM Data"
+        >
+          🗺️
+          <span class="btn-text text-sm">
+            <div>Load Graph</div>
+            <div>(using OSM data)</div>
+          </span>
+        </button>
+        <button
+          id="disposeCarsBtn"
+          onclick="disposeCars()"
+          data-toggle="tooltip"
+          data-placement="top"
+          title="Delete Cars"
+        >
+          🗑️
+          <span class="btn-text">Remove Cars</span>
+        </button>
+        <button
+          id="disposeMarkingsBtn"
+          onclick="disposeMarkings()"
+          data-toggle="tooltip"
+          data-placement="top"
+          title="Delete Markings"
+        >
+          🗑️
+          <span class="btn-text">Remove Markings</span>
+        </button>
+      </div>
+      <div class="section">
+        <button
+          id="generateWorldBtn"
+          onclick="generateWorld()"
+          data-toggle="tooltip"
+          data-placement="top"
+          title="Generate World"
+        >
+          🌐
+          <span class="btn-text">Create World</span>
+        </button>
+        <button
+          id="editGraphBtn"
+          onclick="setMode('graph')"
+          data-toggle="tooltip"
+          data-placement="top"
+          title="Graph Editor"
+        >
+          ⬟
+          <span class="btn-text">Edit Graph</span>
+        </button>
+        <button
+          id="simulationBtn"
+          onclick="setMode('simulation')"
+          data-toggle="tooltip"
+          data-placement="top"
+          title="Simulation Mode"
+        >
+          🤖
+          <span class="btn-text">Train Cars</span>
+        </button>
+      </div>
+    </div>
 
     <!-- Modals -->
 
@@ -172,6 +240,27 @@
         <div class="modal-content">
           <div class="modal-body">
             <img src="images/loading.gif" alt="Loading World" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal for progress bar -->
+    <div id="progressBarModal" class="modal" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-body">
+            <div class="title"></div>
+            <div class="progress">
+              <div
+                class="progress-bar progress-bar-striped"
+                role="progressbar"
+                aria-valuenow="0"
+                aria-valuemin="0"
+                aria-valuemax="100"
+                style="width: 0"
+              ></div>
+            </div>
           </div>
         </div>
       </div>
@@ -271,12 +360,14 @@
       </div>
     </div>
 
-    <!-- Modal for loading world -->
+    <!-- Modal for loading saved worlds -->
     <div id="loadWorldModal" class="modal" tabindex="-1" role="dialog">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <h3 class="modal-title" id="loadWorldModalTitle">Load World</h3>
+            <h4 class="modal-title" id="loadWorldModalTitle">
+              Load a saved world
+            </h4>
             <button
               type="button"
               class="close"
@@ -288,35 +379,7 @@
             </button>
           </div>
           <div class="modal-body">
-            <!-- Section for Saved Worlds -->
-            <div class="saved-worlds-section">
-              <h5>Select from Saved Worlds</h5>
-              <div id="worldList" class="world-list"></div>
-            </div>
-
-            <div class="divider"><span></span><span>OR</span><span></span></div>
-
-            <!-- Section for Loading from OSM Data -->
-            <div class="osm-data-section">
-              <h5>Load World from OSM Data</h5>
-              <textarea
-                id="osmDataInput"
-                class="form-control"
-                rows="5"
-                placeholder="Paste your OSM data here..."
-                data-toggle="popover"
-                data-placement="left"
-                data-trigger="manual"
-                data-content="Enter valid OSM data here for loading the world."
-              ></textarea>
-              <button
-                type="button"
-                class="btn btn-primary mt-2"
-                onclick="loadWorldFromOSM()"
-              >
-                Load World
-              </button>
-            </div>
+            <div id="worldList" class="world-list"></div>
           </div>
           <div class="modal-footer">
             <button
@@ -324,6 +387,57 @@
               class="btn btn-secondary"
               data-dismiss="modal"
               onclick="hideLoadWorldModal()"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal for loading graphs from OSM -->
+    <div id="loadOsmGraphModal" class="modal" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title" id="loadOsmGraphModalTitle">
+              Load Graph from OSM Data
+            </h4>
+            <button
+              type="button"
+              class="close"
+              data-dismiss="modal"
+              aria-label="Close"
+              onclick="hideLoadOsmGraphModal()"
+            >
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <textarea
+              id="osmDataInput"
+              class="form-control"
+              rows="5"
+              placeholder="Paste your OSM data here..."
+              data-toggle="popover"
+              data-placement="left"
+              data-trigger="manual"
+              data-content="Enter valid OSM data here for loading the world."
+            ></textarea>
+            <button
+              type="button"
+              class="btn btn-primary mt-2"
+              onclick="loadGraphFromOsm()"
+            >
+              Load Skeleton
+            </button>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-dismiss="modal"
+              onclick="hideLoadOsmGraphModal()"
             >
               Close
             </button>
@@ -710,13 +824,19 @@
     <script src="js/items/building.js"></script>
     <script src="js/movement/sensor.js"></script>
     <script src="js/movement/brain.js"></script>
-    <script src="js/math/graph.js"></script>
-    <script src="js/math/utils.js"></script>
+    <script src="js/utils/graph.js"></script>
+    <script src="js/utils/math.js"></script>
+    <script src="js/utils/progressTracker.js"></script>
     <script src="js/primitives/point.js"></script>
     <script src="js/primitives/segment.js"></script>
     <script src="js/primitives/polygon.js"></script>
     <script src="js/primitives/envelope.js"></script>
     <script src="js/osm/osm.js"></script>
     <script src="js/main.js"></script>
+    <script>
+      const canvasWidth = myCanvas.offsetWidth;
+      document.querySelector(".header").style.width = `${canvasWidth}px`;
+      document.querySelector(".controls").style.width = `${canvasWidth}px`;
+    </script>
   </body>
 </html>

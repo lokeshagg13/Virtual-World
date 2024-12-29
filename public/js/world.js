@@ -14,7 +14,9 @@ class World {
 
         this.frameCount = 0;
 
-        this.generate();
+        if (graph.points.length > 0) {
+            this.generate();
+        }
     }
 
     static load(info) {
@@ -77,25 +79,37 @@ class World {
         return worldSettings;
     }
 
-    generate() {
-        this.envelopes.length = 0;
+    async generate(progressTracker) {
+        progressTracker.show();
+        try {
+            this.envelopes.length = 0;
 
-        for (const segment of this.graph.segments) {
-            this.envelopes.push(
-                new Envelope(segment, this.settings.roadWidth, this.settings.roadRoundness)
-            );
+            progressTracker.reset(this.graph.segments.length, 'Generating roads');
+            for (const segment of this.graph.segments) {
+                this.envelopes.push(
+                    new Envelope(segment, this.settings.roadWidth, this.settings.roadRoundness)
+                );
+                progressTracker.updateProgress();
+                await new Promise((resolve) => setTimeout(resolve, 0));
+            }
+
+            this.roadBorders = Polygon.union(this.envelopes.map((envelop) => envelop.polygon));
+            this.buildings = this.#generateBuildings(progressTracker);
+            this.trees = this.#generateTrees(progressTracker);
+
+            this.laneGuides.length = 0;
+            this.laneGuides.push(...this.#generateLaneGuides(progressTracker));
+        } catch (error) {
+            console.error('Error generating the world: ' + error.message);
+            return { error: true, message: 'Error generating the world: ' + error.message };
+        } finally {
+            progressTracker.hide();
         }
-
-        this.roadBorders = Polygon.union(this.envelopes.map((envelop) => envelop.polygon));
-        this.buildings = this.#generateBuildings();
-        this.trees = this.#generateTrees();
-
-        this.laneGuides.length = 0;
-        this.laneGuides.push(...this.#generateLaneGuides());
     }
 
-    #generateLaneGuides() {
+    async #generateLaneGuides(progressTracker) {
         const tmpEnvelopes = [];
+        progressTracker.reset(this.graph.segments.length, 'Generating lane guides');
         for (const segment of this.graph.segments) {
             tmpEnvelopes.push(
                 new Envelope(
@@ -104,12 +118,14 @@ class World {
                     this.settings.roadRoundness
                 )
             );
+            progressTracker.updateProgress();
+            await new Promise((resolve) => setTimeout(resolve, 0));
         }
         const segments = Polygon.union(tmpEnvelopes.map((e) => e.polygon));
         return segments;
     }
 
-    #generateTrees() {
+    async #generateTrees(progressTracker) {
         const points = [
             ...this.roadBorders.map((s) => [s.p1, s.p2]).flat(),
             ...this.buildings.map((b) => b.base.points).flat()
@@ -126,6 +142,7 @@ class World {
 
         const trees = [];
         let tryCount = 0;
+        progressTracker.reset(100, 'Generating trees');
         while (tryCount < 100) {
             const p = new Point(
                 lerp(left, right, Math.random()),
@@ -169,13 +186,16 @@ class World {
                 tryCount = 0;
             }
             tryCount++;
+            progressTracker.updateProgress();
+            await new Promise((resolve) => setTimeout(resolve, 0));
         }
         return trees;
     }
 
-    #generateBuildings() {
+    async #generateBuildings(progressTracker) {
         // Creating building region envelopes
         const tmpEnvelopes = [];
+        progressTracker.reset(this.graph.segments.length, 'Generating buildings');
         for (const segment of this.graph.segments) {
             tmpEnvelopes.push(
                 new Envelope(
@@ -184,6 +204,8 @@ class World {
                     this.settings.roadRoundness
                 )
             );
+            progressTracker.updateProgress();
+            await new Promise((resolve) => setTimeout(resolve, 0));
         }
 
         const guides = Polygon.union(tmpEnvelopes.map((e) => e.polygon));
@@ -191,6 +213,7 @@ class World {
 
         // Creating supports for buildings using the buildings
         const buildingSupports = [];
+        progressTracker.reset(buildingSuitableGuides.length, 'Generating buildings');
         for (let segment of buildingSuitableGuides) {
             const length = segment.length() + this.settings.spacing;
             const buildingCount = Math.floor(
@@ -209,6 +232,8 @@ class World {
                 q2 = add(q1, scale(direction, buildingLength));
                 buildingSupports.push(new Segment(q1, q2));
             }
+            progressTracker.updateProgress();
+            await new Promise((resolve) => setTimeout(resolve, 0));
         }
 
         // Creating rectangular bases for buildings using the supports

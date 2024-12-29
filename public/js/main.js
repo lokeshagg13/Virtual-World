@@ -3,77 +3,127 @@ myCanvas.height = 600;
 
 const ctx = myCanvas.getContext("2d");
 
-const worldString = localStorage.getItem("world");
-const worldInfo = worldString ? JSON.parse(worldString) : null;
-let world = worldInfo
-    ? World.load(worldInfo)
-    : new World(new Graph());
-const graph = world.graph;
-let oldGraphHash = graph.hash();
-
+let world = new World(new Graph());
 const viewport = new Viewport(myCanvas, world.zoom, world.offset);
-const tools = {
-    graph: { button: graphBtn, editor: new GraphEditor(viewport, graph) },
-    simulation: {
-        button: simulationBtn,
-        editor: new SimulationEditor(viewport, world),
-    },
-    start: { button: startBtn, editor: new StartEditor(viewport, world) },
-    stop: { button: stopBtn, editor: new StopEditor(viewport, world) },
-    yield: { button: yieldBtn, editor: new YieldEditor(viewport, world) },
-    crossing: {
-        button: crossingBtn,
-        editor: new CrossingEditor(viewport, world),
-    },
-    parking: {
-        button: parkingBtn,
-        editor: new ParkingEditor(viewport, world),
-    },
-    target: {
-        button: targetBtn,
-        editor: new TargetEditor(viewport, world),
-    },
-    trafficLight: {
-        button: trafficLightBtn,
-        editor: new TrafficLightEditor(viewport, world),
-    },
+
+let editors = {
+    graph: new GraphEditor(viewport, world),
+    simulation: new SimulationEditor(viewport, world),
+    start: new StartEditor(viewport, world),
+    stop: new StopEditor(viewport, world),
+    yield: new YieldEditor(viewport, world),
+    crossing: new CrossingEditor(viewport, world),
+    parking: new ParkingEditor(viewport, world),
+    target: new TargetEditor(viewport, world),
+    trafficLight: new TrafficLightEditor(viewport, world),
 };
+const progressTracker = new ProgressTracker();
+
+let tooltipTimeout;
+let isTrafficSideChangedConfirmed = false;
+let tempSettings = JSON.parse(JSON.stringify(world.settings));
+let currentMode;
+setMode("graph");
 
 addEventListeners();
-setMode("graph");
+
 animate();
 
 function animate() {
     viewport.reset();
-    if (world.graph.hash() != oldGraphHash) {
-        showLoadingModal();
-        world.generate();
-        hideLoadingModal();
-        viewport.setOffset(world.graph.getCenter());
-        oldGraphHash = world.graph.hash();
+    if (currentMode !== "graph") {
+        if (world.carToFollow) {
+            viewport.setOffset(world.carToFollow.center);
+        }
+        const viewpoint = scale(viewport.getOffset(), -1);
+        const renderRadius = viewport.getScreenRadius();
+        world.draw(ctx, viewpoint, renderRadius);
     }
-    if (world.carToFollow) {
-        viewport.setOffset(world.carToFollow.center);
-    }
-    const viewpoint = scale(viewport.getOffset(), -1);
-    const renderRadius = viewport.getScreenRadius();
 
-    world.draw(ctx, viewpoint, renderRadius);
-
-    ctx.globalAlpha = 0.3;
-    for (const tool of Object.values(tools)) {
-        tool.editor.display();
-    }
+    editors[currentMode]?.display();
     requestAnimationFrame(animate);
 }
 
-function disposeEverything() {
-    tools["graph"].editor.dispose();
-    world.markings.length = 0;
+function clearCanvas() {
+    editors['graph'].dispose();
+    setMode('graph');
 }
 
 function disposeMarkings() {
     world.markings.length = 0;
+}
+
+function disposeCars() {
+    world.markings = world.markings.filter((m) => !(m instanceof StartMarking));
+}
+
+function setMode(mode) {
+    hideToolboxes();
+    hideButtons();
+    disableEditors();
+    resetMarkingButtons();
+    currentMode = mode;
+    if (mode === "graph") {
+        document.querySelector('#clearCanvasBtn').style.display = "inline-flex";
+        document.querySelector('#loadWorldBtn').style.display = "inline-flex";
+        document.querySelector('#loadOsmGraphBtn').style.display = "inline-flex";
+        document.querySelector('#generateWorldBtn').style.display = "inline-flex";
+        editors[mode].enable();
+    } else if (mode === "simulation") {
+        document.querySelector('.simulator').style.display = "flex";
+        document.querySelector('#settingsBtn').style.display = "inline-flex";
+        document.querySelector('#loadWorldBtn').style.display = "inline-flex";
+        document.querySelector('#editWorldBtn').style.display = "inline-flex";
+        document.querySelector('#editGraphBtn').style.display = "inline-flex";
+        editors[mode].enable();
+    } else {
+        document.querySelector('.markings').style.display = "flex";
+        document.querySelector('#clearCanvasBtn').style.display = "inline-flex";
+        document.querySelector('#settingsBtn').style.display = "inline-flex";
+        document.querySelector('#loadWorldBtn').style.display = "inline-flex";
+        document.querySelector('#saveWorldBtn').style.display = "inline-flex";
+        document.querySelector('#disposeCarsBtn').style.display = "inline-flex";
+        document.querySelector('#disposeMarkingsBtn').style.display = "inline-flex";
+        document.querySelector('#editGraphBtn').style.display = "inline-flex";
+        document.querySelector('#simulationBtn').style.display = "inline-flex";
+
+        if (mode !== "world") {
+            const modeBtn = document.getElementById(mode + 'Btn');
+            modeBtn.classList.add('clicked');
+            editors[mode].enable();
+        }
+    }
+}
+
+function hideToolboxes() {
+    document.querySelector('.markings').style.display = "none";
+    document.querySelector('.simulator').style.display = "none";
+}
+
+function hideButtons() {
+    [...document.querySelectorAll('.header button, .controls button')].map((btn) => btn.style.display = "none");
+}
+
+function disableEditors() {
+    for (const editor of Object.values(editors)) {
+        editor.disable();
+    }
+}
+
+function resetMarkingButtons() {
+    document.querySelectorAll('.markings button.clicked').forEach((btn) => {
+        btn.classList.remove('clicked')
+    });
+}
+
+async function generateWorld() {
+    if (world.graph.points.length === 0) {
+        showErrorModal('A foundational graph structure is required for the world but is currently missing. Please create a graph to proceed');
+        return;
+    }
+    await world.generate();
+    viewport.setOffset(world.graph.getCenter());
+    setMode('world');
 }
 
 function saveWorldData() {
@@ -106,8 +156,6 @@ function saveWorldData() {
             console.error("Error saving world:", error);
             showErrorModal("Error saving the world.");
         });
-
-    world.save();
 }
 
 function loadWorldData(worldId) {
@@ -125,12 +173,23 @@ function loadWorldData(worldId) {
         .then((data) => {
             const loadedWorld = data.world;
             world = World.load(loadedWorld); // Load the world data
-            world.save();
+            editors = {
+                graph: new GraphEditor(viewport, world),
+                simulation: new SimulationEditor(viewport, world),
+                start: new StartEditor(viewport, world),
+                stop: new StopEditor(viewport, world),
+                yield: new YieldEditor(viewport, world),
+                crossing: new CrossingEditor(viewport, world),
+                parking: new ParkingEditor(viewport, world),
+                target: new TargetEditor(viewport, world),
+                trafficLight: new TrafficLightEditor(viewport, world),
+            };
             document.getElementById("loadWorldModal").style.display = "none";
             showLoadingModal();
             setTimeout(() => {
-                location.reload();
                 hideLoadingModal();
+                setMode('world');
+                viewport.setOffset(world.graph.getCenter());
             }, 3000);
         })
         .catch((error) => {
@@ -140,7 +199,7 @@ function loadWorldData(worldId) {
         });
 }
 
-function loadWorldFromOSM() {
+function loadGraphFromOsm() {
     const osmDataContainer = document.getElementById('osmDataInput');
     if (osmDataContainer.value === "") {
         showTooltip('osmDataInput');
@@ -154,31 +213,9 @@ function loadWorldFromOSM() {
 
     world.graph.points = osmParsedData.points;
     world.graph.segments = osmParsedData.segments;
-    hideLoadWorldModal();
+    viewport.setOffset(world.graph.getCenter());
+    hideLoadOsmGraphModal();
 }
-
-function setMode(mode) {
-    disableEditors();
-    tools[mode].button.style.backgroundColor = "white";
-    tools[mode].button.style.filter = "";
-    tools[mode].editor.enable();
-    if (mode == "simulation") {
-        saveSimulationBtn.style.display = "inline-block";
-        resetSimulationBtn.style.display = "inline-block";
-    }
-}
-
-function disableEditors() {
-    for (const tool of Object.values(tools)) {
-        tool.button.style.backgroundColor = "gray";
-        tool.button.style.filter = "grayscale(100%)";
-        saveSimulationBtn.style.display = "none";
-        resetSimulationBtn.style.display = "none";
-        tool.editor.disable();
-    }
-}
-
-let isTrafficSideChangedConfirmed = false;
 
 function showTrafficSideChangeConfirmationModal() {
     document.getElementById("trafficSideChangeModal").style.display =
@@ -277,6 +314,14 @@ function hideLoadWorldModal() {
     document.getElementById("loadWorldModal").style.display = "none";
 }
 
+function showLoadOsmGraphModal() {
+    document.getElementById('loadOsmGraphModal').style.display = "flex";
+}
+
+function hideLoadOsmGraphModal() {
+    document.getElementById('loadOsmGraphModal').style.display = "none";
+}
+
 function saveSimulationResult() {
     if (world.carToFollow && world.carToFollow.brain) {
         localStorage.setItem("bestBrain", JSON.stringify(world.carToFollow.brain));
@@ -294,11 +339,8 @@ function resetSimulation() {
         }
         return !m.car.isSimulation;
     });
-    tools["simulation"].editor.running = false;
+    editors["simulation"].running = false;
 }
-
-let tooltipTimeout;
-let tempSettings = JSON.parse(JSON.stringify(world.settings));
 
 function addEventListeners() {
     $('#trafficToggle').change((ev) => {
@@ -642,7 +684,6 @@ function saveSettings() {
     if (areValidSettings(newSettings)) {
         world.settings = newSettings;
         world.settings.save();
-        world.generate();
         showSaveConfirmationModal('Settings saved successfully');
         loadSettingsIntoDisplay();
     }

@@ -74,7 +74,7 @@ class Graph {
     }
 
     getCenter() {
-        const nodes = graph.points;
+        const nodes = this.points;
         const minX = Math.min(...nodes.map(n => n.x));
         const maxX = Math.max(...nodes.map(n => n.x));
         const minY = Math.min(...nodes.map(n => n.y));

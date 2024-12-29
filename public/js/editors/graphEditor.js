@@ -1,8 +1,8 @@
 class GraphEditor {
-    constructor(viewport, graph) {
+    constructor(viewport, world) {
         this.viewport = viewport;
         this.canvas = viewport.canvas;
-        this.graph = graph;
+        this.world = world;
 
         this.ctx = this.canvas.getContext("2d");
 
@@ -59,7 +59,7 @@ class GraphEditor {
                 return
             }
             // Else adding a new point to the graph and selecting it
-            this.graph.addPoint(this.hoveredPoint);
+            this.world.graph.addPoint(this.hoveredPoint);
             this.#select(this.hoveredPoint);
             this.nearestPoint = this.hoveredPoint;
         }
@@ -67,7 +67,7 @@ class GraphEditor {
 
     #handleMouseMove(ev) {
         this.hoveredPoint = this.viewport.getCurrentMousePoint(ev, true);
-        this.nearestPoint = getNearestPoint(this.hoveredPoint, this.graph.points, 12 * this.viewport.zoom);
+        this.nearestPoint = getNearestPoint(this.hoveredPoint, this.world.graph.points, 12 * this.viewport.zoom);
         if (this.dragging) {
             this.selectedPoint.x = this.hoveredPoint.x;
             this.selectedPoint.y = this.hoveredPoint.y;
@@ -76,7 +76,7 @@ class GraphEditor {
 
     #select(point) {
         if (this.selectedPoint) {
-            this.graph.tryAddSegment(new Segment(this.selectedPoint, point));
+            this.world.graph.tryAddSegment(new Segment(this.selectedPoint, point));
         }
         this.selectedPoint = point;
     }
@@ -84,7 +84,7 @@ class GraphEditor {
     // This method is made separately since the point is still visible after it is removed
     // as the selectedPoint and nearestPoint are still not set as null
     #removePoint(point) {
-        this.graph.removePoint(point);
+        this.world.graph.removePoint(point);
         this.nearestPoint = null;
         if (this.selectedPoint == point) {
             this.selectedPoint = null;
@@ -92,7 +92,7 @@ class GraphEditor {
     }
 
     dispose() {
-        this.graph.dispose();
+        this.world.dispose();
         this.hoveredPoint = null;
         this.selectedPoint = null;
         this.nearestPoint = null;
@@ -100,7 +100,7 @@ class GraphEditor {
     }
 
     display() {
-        this.graph.draw(this.ctx);
+        this.world.graph.draw(this.ctx);
         if (this.nearestPoint) {
             this.nearestPoint.draw(this.ctx, { fill: true })
         }
