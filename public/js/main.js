@@ -23,6 +23,7 @@ let tooltipTimeout;
 let isTrafficSideChangedConfirmed = false;
 let tempSettings = JSON.parse(JSON.stringify(world.settings));
 let currentMode;
+let confirmBtnEventListener = null;
 setMode("graph");
 
 addEventListeners();
@@ -213,7 +214,11 @@ function deleteWorldData(worldId) {
         .then((data) => {
             if (data.message && data.message === 'World deleted successfully') {
                 hideLoadWorldModal();
-                showLoadWorldModal();
+                showLoadingModal();
+                setTimeout(() => {
+                    hideLoadingModal();
+                    showLoadWorldModal();
+                }, 3000);
             }
         })
         .catch((error) => {
@@ -283,6 +288,10 @@ function showConfirmingModal(title = "", body = "", confirmBtnText = "", onConfi
     document.querySelector('#confirmingModal .modal-title').innerText = title;
     document.querySelector('#confirmingModal .modal-body').innerHTML = body;
     document.querySelector('#confirmingModal .modal-footer .btn-primary').innerText = confirmBtnText;
+    if (confirmBtnEventListener) {
+        document.querySelector('#confirmingModal .modal-footer .btn-primary').removeEventListener('click', confirmBtnEventListener);
+    }
+    confirmBtnEventListener = onConfirm;
     document.querySelector('#confirmingModal .modal-footer .btn-primary').addEventListener('click', onConfirm);
     document.getElementById('confirmingModal').style.display = "flex";
 }

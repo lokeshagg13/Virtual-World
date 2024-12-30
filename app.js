@@ -47,8 +47,8 @@ app.post('/api/save-world', async (req, res) => {
         // Read world data json file
         let worldDataString = fs.readFileSync(worldJSONPath, 'utf8');
         const worlds = worldDataString !== '' ? JSON.parse(worldDataString) : [];
-        worldToSave.id = encryptId(worlds.length + 1, secretKey, iv);
         worldToSave.createdOn = new Date();
+        worldToSave.id = encryptId(worldToSave.createdOn.getTime(), secretKey, iv);
 
         // Save screenshot file
         const base64Data = worldToSave.screenshot.replace(/^data:image\/png;base64,/, '');
@@ -58,11 +58,11 @@ app.post('/api/save-world', async (req, res) => {
         // Add textual data to the json file
         worlds.push(worldToSave);
         fs.writeFileSync(worldJSONPath, JSON.stringify(worlds, '', 4))
-
-        res.status(201).json({ message: 'World saved successfully', data: worldToSave });
+        console.log('201: Save World')
+        return res.status(201).json({ message: 'World saved successfully' });
     } catch (error) {
         console.log(error)
-        res.status(500).json({ error: 'Internal Server Error', details: error.message });
+        return res.status(500).json({ error: 'Internal Server Error', details: error.message });
     }
 });
 
@@ -75,10 +75,10 @@ app.post('/api/get-worlds', async (req, res) => {
             screenshot: world.screenshot,
             createdOn: world.createdOn
         }));
-        res.json({ message: 'Worlds retrieved successfully', worlds: worlds });
+        return res.status(200).json({ message: 'Worlds retrieved successfully', worlds: worlds });
     } catch (error) {
         console.log(error)
-        res.status(500).json({ error: 'Internal Server Error', details: error.message });
+        return res.status(500).json({ error: 'Internal Server Error', details: error.message });
     }
 })
 
@@ -99,10 +99,10 @@ app.get('/api/load-world/:worldId', async (req, res) => {
         }
         world = world[0]
         world.id = decryptId(world.id, secretKey, iv);
-        res.json({ message: 'World retrieved successfully', world: world });
+        return res.status(200).json({ message: 'World retrieved successfully', world: world });
     } catch (error) {
         console.log(error)
-        res.status(500).json({ error: 'Internal Server Error', details: error.message });
+        return res.status(500).json({ error: 'Internal Server Error', details: error.message });
     }
 });
 
@@ -130,10 +130,10 @@ app.delete('/api/delete-world/:worldId', async (req, res) => {
             }
         }
         fs.writeFileSync(worldJSONPath, JSON.stringify(worldsRemaining, '', 4))
-        res.json({ message: 'World deleted successfully' });
+        return res.status(200).json({ message: 'World deleted successfully' });
     } catch (error) {
         console.log(error)
-        res.status(500).json({ error: 'Internal Server Error', details: error.message });
+        return res.status(500).json({ error: 'Internal Server Error', details: error.message });
     }
 });
 
@@ -156,7 +156,7 @@ app.get('/api/random-car', (req, res) => {
             res.sendFile(path.join(carImagesDir, randomImage));
         });
     } catch (error) {
-        res.status(500).json({ error: 'Internal Server Error', details: error.message });
+        return res.status(500).json({ error: 'Internal Server Error', details: error.message });
     }
 });
 
