@@ -158,6 +158,7 @@ function saveWorldData() {
 }
 
 function loadWorldData(worldId) {
+    hideLoadWorldModal();
     fetch(`http://localhost:3000/api/load-world/${worldId}`, {
         method: "GET",
     })
@@ -183,7 +184,6 @@ function loadWorldData(worldId) {
                 target: new TargetEditor(viewport, world),
                 trafficLight: new TrafficLightEditor(viewport, world),
             };
-            document.getElementById("loadWorldModal").style.display = "none";
             showLoadingModal();
             setTimeout(() => {
                 hideLoadingModal();
@@ -193,8 +193,32 @@ function loadWorldData(worldId) {
         })
         .catch((error) => {
             console.error("Error loading world:", error);
-            document.getElementById("loadWorldModal").style.display = "none";
             showErrorModal("Error loading the world.");
+        });
+}
+
+function deleteWorldData(worldId) {
+    hideConfirmingModal();
+    fetch(`http://localhost:3000/api/delete-world/${worldId}`, {
+        method: "DELETE",
+    })
+        .then((response) => {
+            if (!response.ok) {
+                return response.json().then((data) => {
+                    throw new Error(data.details || "Failed to delete world");
+                });
+            }
+            return response.json();
+        })
+        .then((data) => {
+            if (data.message && data.message === 'World deleted successfully') {
+                hideLoadWorldModal();
+                showLoadWorldModal();
+            }
+        })
+        .catch((error) => {
+            console.error("Error deleting the world:", error);
+            showErrorModal("Error deleting the world.");
         });
 }
 
@@ -255,6 +279,18 @@ function hideErrorModal() {
     document.getElementById("errorModal").style.display = "none";
 }
 
+function showConfirmingModal(title = "", body = "", confirmBtnText = "", onConfirm = null) {
+    document.querySelector('#confirmingModal .modal-title').innerText = title;
+    document.querySelector('#confirmingModal .modal-body').innerHTML = body;
+    document.querySelector('#confirmingModal .modal-footer .btn-primary').innerText = confirmBtnText;
+    document.querySelector('#confirmingModal .modal-footer .btn-primary').addEventListener('click', onConfirm);
+    document.getElementById('confirmingModal').style.display = "flex";
+}
+
+function hideConfirmingModal() {
+    document.getElementById('confirmingModal').style.display = "none";
+}
+
 function showLoadingModal() {
     document.getElementById("loadingModal").style.display = "flex";
 }
@@ -281,17 +317,47 @@ function showLoadWorldModal() {
             worldListContainer.innerHTML = ""; // Clear existing content
 
             if (data.worlds && data.worlds.length > 0) {
-                data.worlds.forEach((world) => {
+                data.worlds.forEach((world, index) => {
                     // Create elements to display the world
                     const worldItem = document.createElement("div");
+                    const worldId = index + 1;
                     worldItem.classList.add("world-item");
+                    worldItem.setAttribute("id", world.id + "")
                     worldItem.innerHTML = `
-                  <img src="${world.screenshot}" alt="World ${world.id}" />
-                  <h4>World ${world.id}</h4>
+                  <img src="${world.screenshot}" alt="World ${worldId}" />
+                  <div class="world-info">
+                    <h4>World ${worldId}</h4>
+                    <div class="world-controls">
+                        <button 
+                            class="btn-world-info" 
+                            id="world-info-${worldId}"
+                            onclick="showWorldInfoPopover('world-info-${worldId}')"
+                            data-toggle="popover"
+                            data-placement="top"
+                            data-trigger="click"
+                            data-html="true"
+                            data-content="<b>World ${worldId}</b><br />Created On: ${formatTimestamp(world.createdOn)}"    
+                        >ℹ️</button>
+                        <button
+                            class="btn-world-delete"
+                            id="world-delete-${worldId}"
+                            onclick="showConfirmingModal(
+                                'Delete world', 
+                                '<p>Are you sure you want to delete <b>World ${worldId}</b> from the list of saved worlds?</p>', 
+                                'Delete',
+                                () => deleteWorldData('${world.id}')
+                            )"
+                        >🗑️</button>
+                    </div>
+                  </div>
                 `;
 
                     // Add event listener to handle world selection
-                    worldItem.addEventListener("click", () => {
+                    worldItem.querySelector('img').addEventListener("click", () => {
+                        loadWorldData(world.id);
+                    });
+
+                    worldItem.querySelector('h4').addEventListener("click", () => {
                         loadWorldData(world.id);
                     });
 
@@ -544,6 +610,17 @@ function addEventListeners() {
             }
             tempSettings.sensorRayLength = value;
         });
+}
+
+function showWorldInfoPopover(inputId) {
+    hideWorldInfoPopovers();
+    clearTimeout(tooltipTimeout);
+    $('#' + inputId).popover('show');
+    tooltipTimeout = setTimeout(() => hideWorldInfoPopovers(), 5000);
+}
+
+function hideWorldInfoPopovers() {
+    $('.btn-world-info').popover('hide');
 }
 
 function showTooltip(inputId) {

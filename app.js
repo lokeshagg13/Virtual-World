@@ -48,6 +48,7 @@ app.post('/api/save-world', async (req, res) => {
         let worldDataString = fs.readFileSync(worldJSONPath, 'utf8');
         const worlds = worldDataString !== '' ? JSON.parse(worldDataString) : [];
         worldToSave.id = encryptId(worlds.length + 1, secretKey, iv);
+        worldToSave.createdOn = new Date();
 
         // Save screenshot file
         const base64Data = worldToSave.screenshot.replace(/^data:image\/png;base64,/, '');
@@ -71,7 +72,8 @@ app.post('/api/get-worlds', async (req, res) => {
         let worlds = worldDataString !== '' ? JSON.parse(worldDataString) : [];
         worlds = worlds.map((world) => ({
             id: decryptId(world.id, secretKey, iv),
-            screenshot: world.screenshot
+            screenshot: world.screenshot,
+            createdOn: world.createdOn
         }));
         res.json({ message: 'Worlds retrieved successfully', worlds: worlds });
     } catch (error) {
@@ -91,7 +93,7 @@ app.get('/api/load-world/:worldId', async (req, res) => {
         }
 
         const worldId = req.params['worldId'];
-        let world = worlds.filter((world) => decryptId(world.id, secretKey, iv) == worldId);
+        let world = worlds.filter((world) => decryptId(world.id, secretKey, iv) === worldId);
         if (world.length == 0) {
             return res.status(404).json({ message: 'World not found' })
         }
@@ -105,7 +107,7 @@ app.get('/api/load-world/:worldId', async (req, res) => {
 });
 
 // Delete the world from the database
-app.get('/api/delete-world/:worldId', async (req, res) => {
+app.delete('/api/delete-world/:worldId', async (req, res) => {
     try {
         let worldDataString = fs.readFileSync(worldJSONPath, 'utf8');
         const worlds = worldDataString !== '' ? JSON.parse(worldDataString) : [];

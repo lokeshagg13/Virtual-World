@@ -99,6 +99,10 @@ button {
   z-index: 1100;
 }
 
+#confirmingModal {
+  z-index: 1100;
+}
+
 #loadingModal {
   z-index: 1050;
 }
@@ -227,6 +231,12 @@ button {
   font-size: 16px;
   color: #333;
   margin: 0.5rem 0;
+}
+
+.world-item .world-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .divider {
