@@ -427,6 +427,82 @@ function addEventListeners() {
     });
 
     document
+        .getElementById('clearCanvasBtn')
+        .addEventListener('click', () => {
+            showConfirmingModal(
+                'Clear Canvas',
+                `<p>
+                Are you sure you want to clear the canvas area?
+                <br />
+                <br />
+                <small>(Note: This action is unrecoverable.)</small>
+                </p>`,
+                'Clear',
+                () => {
+                    clearCanvas();
+                    hideConfirmingModal();
+                }
+            );
+        });
+
+    document
+        .getElementById('disposeCarsBtn')
+        .addEventListener('click', () => {
+            showConfirmingModal(
+                'Remove Cars',
+                `<p>
+                Are you sure you want to remove all the cars from the world?
+                <br />
+                <br />
+                <small>(Note: This action is unrecoverable.)</small>
+                </p>`,
+                'Continue',
+                () => {
+                    disposeCars();
+                    hideConfirmingModal();
+                }
+            );
+        });
+
+    document
+        .getElementById('disposeMarkingsBtn')
+        .addEventListener('click', () => {
+            showConfirmingModal(
+                'Remove Markings',
+                `<p>
+                Are you sure you want to remove all the markings from the world?
+                <br />
+                <br />
+                <small>(Note: This action is unrecoverable and will need you to create all markings <b>(including cars)</b> on the world.)</small>
+                </p>`,
+                'Continue',
+                () => {
+                    disposeMarkings();
+                    hideConfirmingModal();
+                }
+            );
+        });
+
+    document
+        .getElementById('editGraphBtn')
+        .addEventListener('click', () => {
+            showConfirmingModal(
+                'Edit Skeleton',
+                `<p>
+                Are you sure you want to change to <b>Edit Skeleton</b> mode for this world?
+                <br />
+                <br />
+                <small>(Note: This action is unrecoverable and will need you to regenerate & redecorate the world.</small>
+                </p>`,
+                'Continue',
+                () => {
+                    setMode('graph');
+                    hideConfirmingModal();
+                }
+            );
+        });
+
+    document
         .getElementById("roadWidth")
         .addEventListener("input", (ev) => {
             const value = document.getElementById("roadWidth").value;
