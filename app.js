@@ -3,7 +3,14 @@ const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
 const app = express();
-const PORT = 3000;
+
+const { encryptId, decryptId } = require('./utils/security');
+
+require('dotenv').config();
+
+// Parse the secret key and IV from the environment
+const secretKey = Buffer.from(process.env.SECRET_KEY, 'hex');
+const iv = Buffer.from(process.env.IV, 'hex');
 
 // Middleware
 app.use(express.json({ limit: '100mb' }));
@@ -40,11 +47,11 @@ app.post('/api/save-world', async (req, res) => {
         // Read world data json file
         let worldDataString = fs.readFileSync(worldJSONPath, 'utf8');
         const worlds = worldDataString !== '' ? JSON.parse(worldDataString) : [];
-        worldToSave.id = worlds.length;
+        worldToSave.id = encryptId(worlds.length + 1, secretKey, iv);
 
         // Save screenshot file
         const base64Data = worldToSave.screenshot.replace(/^data:image\/png;base64,/, '');
-        const screenshotPath = path.join(worldScreenshotsFolderPath, 'World_' + worldToSave.id + '.png')
+        const screenshotPath = path.join(worldScreenshotsFolderPath, 'World_' + decryptId(worldToSave.id, secretKey, iv) + '.png')
         fs.writeFileSync(screenshotPath, base64Data, 'base64');
 
         // Add textual data to the json file
@@ -63,7 +70,7 @@ app.post('/api/get-worlds', async (req, res) => {
         let worldDataString = fs.readFileSync(worldJSONPath, 'utf8');
         let worlds = worldDataString !== '' ? JSON.parse(worldDataString) : [];
         worlds = worlds.map((world) => ({
-            id: world.id,
+            id: decryptId(world.id, secretKey, iv),
             screenshot: world.screenshot
         }));
         res.json({ message: 'Worlds retrieved successfully', worlds: worlds });
@@ -84,11 +91,44 @@ app.get('/api/load-world/:worldId', async (req, res) => {
         }
 
         const worldId = req.params['worldId'];
-        const world = worlds.filter((world) => world.id == worldId);
+        let world = worlds.filter((world) => decryptId(world.id, secretKey, iv) == worldId);
         if (world.length == 0) {
             return res.status(404).json({ message: 'World not found' })
         }
-        res.json({ message: 'World retrieved successfully', world: world[0] });
+        world = world[0]
+        world.id = decryptId(world.id, secretKey, iv);
+        res.json({ message: 'World retrieved successfully', world: world });
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ error: 'Internal Server Error', details: error.message });
+    }
+});
+
+// Delete the world from the database
+app.get('/api/delete-world/:worldId', async (req, res) => {
+    try {
+        let worldDataString = fs.readFileSync(worldJSONPath, 'utf8');
+        const worlds = worldDataString !== '' ? JSON.parse(worldDataString) : [];
+
+        if (worlds.length === 0) {
+            return res.status(404).json({ error: 'No saved worlds.' });
+        }
+
+        const worldId = req.params['worldId'];
+        const worldsRemaining = [];
+        for (const world of worlds) {
+            const decryptedID = decryptId(world.id, secretKey, iv);
+            if (decryptedID === worldId) {
+                const screenshotPath = path.join(worldScreenshotsFolderPath, 'World_' + decryptedID + '.png')
+                if (fs.existsSync(screenshotPath)) {
+                    fs.unlinkSync(screenshotPath);
+                }
+            } else {
+                worldsRemaining.push(world);
+            }
+        }
+        fs.writeFileSync(worldJSONPath, JSON.stringify(worldsRemaining, '', 4))
+        res.json({ message: 'World deleted successfully' });
     } catch (error) {
         console.log(error)
         res.status(500).json({ error: 'Internal Server Error', details: error.message });
@@ -119,6 +159,6 @@ app.get('/api/random-car', (req, res) => {
 });
 
 // Start Server
-app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+app.listen(process.env.PORT, () => {
+    console.log(`Server running on http://localhost:${process.env.PORT}`);
 });
