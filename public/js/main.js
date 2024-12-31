@@ -1,17 +1,12 @@
 const myCanvas = document.getElementById('myCanvas');
 myCanvas.width = 600;
 myCanvas.height = 600;
-const miniMapCanvas = document.getElementById('miniMapCanvas');
-const miniMapContainer = document.getElementById('miniMapContainer');
-const handles = document.querySelectorAll('.resize-handle');
-
-miniMapContainer.style.width = miniMapCanvas.width = 300;
-miniMapContainer.style.height = miniMapCanvas.height = 300;
 
 const ctx = myCanvas.getContext("2d");
 
 let world = new World(new Graph());
 const viewport = new Viewport(myCanvas, world.zoom, world.offset);
+const miniMap = new MiniMap(new MiniMapEditor(), world.graph);
 
 let editors = {
     graph: new GraphEditor(viewport, world),
@@ -26,11 +21,12 @@ let editors = {
 };
 const progressTracker = new ProgressTracker();
 
+let currentMode;
 let tooltipTimeout;
+let confirmBtnEventListener = null;
 let isTrafficSideChangedConfirmed = false;
 let tempSettings = JSON.parse(JSON.stringify(world.settings));
-let currentMode;
-let confirmBtnEventListener = null;
+
 setMode("graph");
 
 addEventListeners();
@@ -46,6 +42,7 @@ function animate() {
         const viewpoint = scale(viewport.getOffset(), -1);
         const renderRadius = viewport.getScreenRadius();
         world.draw(ctx, viewpoint, renderRadius);
+        miniMap.load(world.graph).draw(viewpoint);
     }
 
     editors[currentMode]?.display();
@@ -78,11 +75,13 @@ function setMode(mode) {
         document.querySelector('#loadOsmGraphBtn').style.display = "inline-flex";
         document.querySelector('#generateWorldBtn').style.display = "inline-flex";
         editors[mode].enable();
+        miniMap.hide();
     } else if (mode === "simulation") {
         document.querySelector('.simulator').style.display = "flex";
         document.querySelector('#settingsBtn').style.display = "inline-flex";
         document.querySelector('#exitSimulationModeBtn').style.display = "inline-flex";
         editors[mode].enable();
+        miniMap.show();
     } else {
         document.querySelector('.markings').style.display = "flex";
         document.querySelector('#clearCanvasBtn').style.display = "inline-flex";
@@ -99,6 +98,7 @@ function setMode(mode) {
             modeBtn.classList.add('clicked');
             editors[mode].enable();
         }
+        miniMap.show();
     }
 }
 
@@ -269,6 +269,18 @@ function cancelTrafficSideChange() {
     document.getElementById("trafficSideChangeModal").style.display =
         "none";
     isTrafficSideChangedConfirmed = false;
+}
+
+function minimizeMiniMap() {
+    if (currentMode !== "graph") {
+        miniMap.minimize()
+    }
+}
+
+function maximizeMiniMap() {
+    if (currentMode !== "graph") {
+        miniMap.maximize()
+    }
 }
 
 function showSaveConfirmationModal(message) {

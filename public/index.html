@@ -39,10 +39,25 @@
     <div class="canvas-container">
       <canvas id="myCanvas"></canvas>
       <div id="miniMapContainer">
-        <canvas id="miniMapCanvas"></canvas>
-        <div class="resize-handle handle-left"></div>
-        <div class="resize-handle handle-bottom"></div>
-        <div class="resize-handle handle-bottom-left"></div>
+        <button
+          class="maximize-icon"
+          id="maximizeMiniMapBtn"
+          onclick="maximizeMiniMap()"
+        >
+          ➕ Show Mini Map
+        </button>
+        <div id="maximizedMapContent">
+          <button
+            class="minimize-icon"
+            id="minimizeMiniMapBtn"
+            onclick="minimizeMiniMap()"
+          >
+            ➖
+          </button>
+          <canvas id="miniMapCanvas"></canvas>
+          <div class="resize-handle handle-left"></div>
+          <div class="resize-handle handle-bottom"></div>
+        </div>
       </div>
     </div>
     <div class="markings">
@@ -865,9 +880,10 @@
       crossorigin="anonymous"
     ></script>
     <script src="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/js/bootstrap4-toggle.min.js"></script>
-    <script src="js/settings.js"></script>
-    <script src="js/world.js"></script>
-    <script src="js/viewport.js"></script>
+    <script src="js/ecosystem/settings.js"></script>
+    <script src="js/ecosystem/world.js"></script>
+    <script src="js/ecosystem/viewport.js"></script>
+    <script src="js/ecosystem/miniMap.js"></script>
     <script src="js/markings/marking.js"></script>
     <script src="js/markings/start.js"></script>
     <script src="js/markings/stop.js"></script>

@@ -30,12 +30,13 @@ h1 {
   top: 0;
   right: 0;
   z-index: 2;
-  border: 1px solid black;
   background: none;
 }
 
 #miniMapCanvas {
   display: block;
+  background-color: black;
+  border-radius: 50%;
 }
 
 .resize-handle {
@@ -46,25 +47,36 @@ h1 {
   cursor: pointer;
 }
 
-/* Resizing handles */
-.handle-left {
+.resize-handle.handle-left {
   left: -5px;
   top: 50%;
   transform: translateY(-50%);
   cursor: ew-resize;
 }
 
-.handle-bottom {
+.resize-handle.handle-bottom {
   bottom: -5px;
   left: 50%;
   transform: translateX(-50%);
   cursor: ns-resize;
 }
 
-.handle-bottom-left {
-  left: -5px;
-  bottom: -5px;
-  cursor: nesw-resize;
+.minimize-icon {
+  position: absolute;
+  top: 0;
+  right: 0;
+  font-size: 15px;
+  background: none;
+  padding: 0 5px;
+}
+
+.maximize-icon {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 2;
+  font-size: 15px;
+  display: none;
 }
 
 button {

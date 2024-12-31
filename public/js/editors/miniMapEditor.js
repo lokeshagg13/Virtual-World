@@ -21,7 +21,6 @@ class MiniMapEditor {
     }
 
     disable() {
-        this.container.style.display = "none";
         this.#removeEventListeners();
     }
 
@@ -36,17 +35,15 @@ class MiniMapEditor {
 
     #removeEventListeners() {
         this.resizeHandles.forEach((resizeHandle) => {
-            console.log('happening?')
             resizeHandle.removeEventListener("mousedown", resizeHandle.boundMouseDown);
         });
     }
 
     #handleMouseDown(ev) {
-        console.log('here')
         this.startX = ev.clientX;
         this.startY = ev.clientY;
-        this.startWidth = miniMapContainer.offsetWidth;
-        this.startHeight = miniMapContainer.offsetHeight;
+        this.startWidth = this.container.offsetWidth;
+        this.startHeight = this.container.offsetHeight;
         this.boundMouseMove = this.#resize.bind(this);
         this.boundMouseUp = this.#stopResize.bind(this);
         document.addEventListener('mousemove', this.boundMouseMove);
@@ -58,37 +55,27 @@ class MiniMapEditor {
         const dx = ev.clientX - this.startX;
         const dy = ev.clientY - this.startY;
 
+        let newSize = this.canvas.width;
+
         const handleClass = ev.target.classList;
 
         if (handleClass.contains('handle-left')) {
-            const newWidth = Math.min(Math.max(this.startWidth - dx, this.minSize), this.maxSize);
-            miniMapContainer.style.width = `${newWidth}px`;
-            miniMapCanvas.width = newWidth;
+            newSize = Math.min(Math.max(this.startWidth - dx, this.minSize), this.maxSize);
         }
 
         if (handleClass.contains('handle-bottom')) {
-            const newHeight = Math.min(Math.max(this.startHeight + dy, this.minSize), this.maxSize);
-            miniMapContainer.style.height = `${newHeight}px`;
-            miniMapCanvas.height = newHeight;
+            newSize = Math.min(Math.max(this.startHeight + dy, this.minSize), this.maxSize);
         }
 
-        if (handleClass.contains('handle-bottom-left')) {
-            const newWidth = Math.min(Math.max(this.startWidth - dx, this.minSize), this.maxSize);
-            const newHeight = Math.min(Math.max(this.startHeight + dy, this.minSize), this.maxSize);
-            miniMapContainer.style.width = `${newWidth}px`;
-            miniMapContainer.style.height = `${newHeight}px`;
-            miniMapCanvas.width = newWidth;
-            miniMapCanvas.height = newHeight;
-        }
+        this.container.style.width = `${newSize}px`;
+        this.container.style.height = `${newSize}px`;
+        this.canvas.width = newSize;
+        this.canvas.height = newSize;
     }
 
     #stopResize() {
         document.removeEventListener('mousemove', this.boundMouseMove);
         document.removeEventListener('mouseup', this.boundMouseUp);
-    }
-
-    display() {
-        this.container.style.display = "block";
     }
 
 }
