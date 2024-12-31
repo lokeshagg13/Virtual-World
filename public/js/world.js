@@ -351,13 +351,28 @@ class World {
     }
 
     #updateCars() {
-        const cars = this.markings.filter((marking) => marking instanceof StartMarking).map((marking) => marking.car);
+        const cars = this
+            .markings
+            .filter(
+                (marking) => (
+                    (marking instanceof StartMarking) &&
+                    (!marking.car.damaged)
+                )
+            ).map(
+                (marking) => marking.car
+            );
+
         for (const car of cars) {
             car.update(this.roadBorders);
         }
+
         this.carToFollow = cars.find(
-            car => car.fitness === (Math.max(
-                ...cars.map(c => c.fitness))
+            car => (
+                car.fitness === (
+                    Math.max(
+                        ...cars.map(c => c.fitness)
+                    )
+                )
             )
         );
     }
