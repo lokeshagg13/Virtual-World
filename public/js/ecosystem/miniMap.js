@@ -1,14 +1,14 @@
 class MiniMap {
-    constructor(editor, graph) {
+    constructor(editor, world) {
         this.editor = editor;
-        this.graph = graph;
+        this.world = world;
         this.visible = false;
         this.minimized = false;
         this.ctx = editor.canvas.getContext("2d");
     }
 
-    load(graph) {
-        this.graph = graph;
+    load(world) {
+        this.world = world;
         return this;
     }
 
@@ -50,12 +50,14 @@ class MiniMap {
                 scaledViewpoint.y + height / 2
             );
             this.ctx.scale(scaler, scaler);
-            for (const segment of this.graph.segments) {
+            for (const segment of this.world.graph.segments) {
                 segment.draw(this.ctx, { width: 3 / scaler, color: "white" });
             }
             this.ctx.restore();
-            new Point(width / 2, height / 2)
-                .draw(this.ctx, { color: "blue", outline: true });
+            if (this.world.carToFollow) {
+                new Point(width / 2, height / 2)
+                    .draw(this.ctx, { color: "blue", outline: true });
+            }
         }
     }
 }

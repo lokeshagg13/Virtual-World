@@ -6,7 +6,7 @@ const ctx = myCanvas.getContext("2d");
 
 let world = new World(new Graph());
 const viewport = new Viewport(myCanvas, world.zoom, world.offset);
-const miniMap = new MiniMap(new MiniMapEditor(), world.graph);
+const miniMap = new MiniMap(new MiniMapEditor(), world);
 
 let editors = {
     graph: new GraphEditor(viewport, world),
@@ -42,7 +42,7 @@ function animate() {
         const viewpoint = scale(viewport.getOffset(), -1);
         const renderRadius = viewport.getScreenRadius();
         world.draw(ctx, viewpoint, renderRadius);
-        miniMap.load(world.graph).draw(viewpoint);
+        miniMap.load(world).draw(viewpoint);
     }
 
     editors[currentMode]?.display();
