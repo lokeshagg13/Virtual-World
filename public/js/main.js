@@ -385,6 +385,7 @@ function showLoadWorldModal() {
 }
 
 function hideLoadWorldModal() {
+    hideWorldInfoPopovers();
     document.getElementById("loadWorldModal").style.display = "none";
 }
 
@@ -646,19 +647,15 @@ function addEventListeners() {
         .getElementById("simulationDiffFactor")
         .addEventListener("input", (ev) => {
             const value = document.getElementById("simulationDiffFactor").value;
-            console.log(value)
             if (value === "" && ev.data === null) {
-                console.log('1' + value)
                 return;
             }
             if (['+', '-'].includes(ev.data)) {
-                console.log('2' + ev.data)
                 document.getElementById("simulationDiffFactor").value = tempSettings.simulationDiffFactor;
                 showTooltip('simulationDiffFactor');
                 return;
             }
             if (parseFloat(value, 10) < 0 || parseFloat(value, 10) > 1) {
-                console.log('3' + value)
                 document.getElementById("simulationDiffFactor").value = tempSettings.simulationDiffFactor;
                 showTooltip('simulationDiffFactor');
                 return;

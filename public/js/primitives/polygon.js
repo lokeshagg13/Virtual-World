@@ -17,7 +17,6 @@ class Polygon {
 
     static async union(polygons, progressTracker) {
         progressTracker.reset(polygons.length - 1);
-        console.log(progressTracker)
         await Polygon.multiBreak(polygons, progressTracker);
         const keptSegments = [];
         progressTracker.reset(polygons.length);
