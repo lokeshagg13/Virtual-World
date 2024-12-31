@@ -11,8 +11,60 @@ h1 {
   font-family: Arial;
 }
 
+.canvas-container {
+  position: relative;
+  width: 600px;
+  height: 600px;
+}
+
 #myCanvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
   background-color: #2a5;
+}
+
+#miniMapContainer {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 2;
+  border: 1px solid black;
+  background: none;
+}
+
+#miniMapCanvas {
+  display: block;
+}
+
+.resize-handle {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background-color: red;
+  cursor: pointer;
+}
+
+/* Resizing handles */
+.handle-left {
+  left: -5px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: ew-resize;
+}
+
+.handle-bottom {
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  cursor: ns-resize;
+}
+
+.handle-bottom-left {
+  left: -5px;
+  bottom: -5px;
+  cursor: nesw-resize;
 }
 
 button {
@@ -42,6 +94,11 @@ button {
 .simulator {
   margin-top: 10px;
   display: flex;
+  align-items: center;
+}
+
+.markings button {
+  display: inline-flex;
   align-items: center;
 }
 

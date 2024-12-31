@@ -1,5 +1,12 @@
+const myCanvas = document.getElementById('myCanvas');
 myCanvas.width = 600;
 myCanvas.height = 600;
+const miniMapCanvas = document.getElementById('miniMapCanvas');
+const miniMapContainer = document.getElementById('miniMapContainer');
+const handles = document.querySelectorAll('.resize-handle');
+
+miniMapContainer.style.width = miniMapCanvas.width = 300;
+miniMapContainer.style.height = miniMapCanvas.height = 300;
 
 const ctx = myCanvas.getContext("2d");
 

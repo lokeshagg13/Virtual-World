@@ -36,7 +36,15 @@
         </button>
       </div>
     </div>
-    <canvas id="myCanvas"></canvas>
+    <div class="canvas-container">
+      <canvas id="myCanvas"></canvas>
+      <div id="miniMapContainer">
+        <canvas id="miniMapCanvas"></canvas>
+        <div class="resize-handle handle-left"></div>
+        <div class="resize-handle handle-bottom"></div>
+        <div class="resize-handle handle-bottom-left"></div>
+      </div>
+    </div>
     <div class="markings">
       <button
         id="stopBtn"
@@ -878,6 +886,7 @@
     <script src="js/editors/parkingEditor.js"></script>
     <script src="js/editors/targetEditor.js"></script>
     <script src="js/editors/trafficLightEditor.js"></script>
+    <script src="js/editors/miniMapEditor.js"></script>
     <script src="js/items/car.js"></script>
     <script src="js/items/tree.js"></script>
     <script src="js/items/building.js"></script>
