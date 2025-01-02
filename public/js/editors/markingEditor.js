@@ -45,13 +45,7 @@ class MarkingEditor {
     #handleMouseDown(ev) {
         if (ev.button == 0) { // left click
             if (this.intent) {
-                if (this.intent instanceof TargetMarking) {
-                    const currentTargetMarking = this.world.markings.findIndex((m) => m instanceof TargetMarking);
-                    if (currentTargetMarking >= 0) {
-                        this.world.markings.splice(currentTargetMarking, 1);
-                    }
-                }
-                this.world.markings.push(this.intent);
+                this.#addMarkingToWorld();
                 this.intent = null;
             }
         }
@@ -86,6 +80,39 @@ class MarkingEditor {
         } else {
             this.intent = null;
         }
+    }
+
+    #addMarkingToWorld() {
+        if (this.intent instanceof TargetMarking) {
+            const currentTargetMarking = this.world.markings.findIndex((m) => m instanceof TargetMarking);
+            if (currentTargetMarking >= 0) {
+                this.world.markings.splice(currentTargetMarking, 1);
+            }
+            for (const marking of this.world.markings) {
+                if (marking instanceof StartMarking) {
+                    marking.car.target = this.intent;
+                    const startPoint = getNearestPoint(marking.car.center, this.world.graph.points);
+                    const endPoint = getNearestPoint(this.intent.center, this.world.graph.points);
+                    marking.car.path = this.world.graph.getShortestPath(
+                        startPoint,
+                        endPoint
+                    );
+                }
+            }
+        }
+        if (this.intent instanceof StartMarking) {
+            const currentTargetMarking = this.world.markings.find((m) => m instanceof TargetMarking);
+            if (currentTargetMarking) {
+                this.intent.car.target = currentTargetMarking;
+                const startPoint = getNearestPoint(this.intent.car.center, this.world.graph.points);
+                const endPoint = getNearestPoint(currentTargetMarking.center, this.world.graph.points);
+                this.intent.car.path = this.world.graph.getShortestPath(
+                    startPoint,
+                    endPoint
+                );
+            }
+        }
+        this.world.markings.push(this.intent);
     }
 
     display() {

@@ -67,10 +67,120 @@ class Graph {
         const segments = [];
         for (const segment of this.segments) {
             if (segment.includes(point)) {
-                segments.push(segment)
+                segments.push(segment);
             }
         }
         return segments;
+    }
+
+    getSegmentsLeavingFromPoint(point) {
+        /*
+        It takes into consideration the one way segments and involve only 
+        those segments which leave from a particular point in order to get 
+        the correct flow of traffic and not go on the wrong side in the one
+        way roads.
+        */
+        const segments = [];
+        for (const segment of this.segments) {
+            if (segment.oneWay) {
+                if (segment.p1.equals(point)) {
+                    segments.push(segment);
+                }
+            } else if (segment.includes(point)) {
+                segments.push(segment);
+            }
+        }
+        return segments;
+    }
+
+    getShortestPath(startPoint, endPoint) {
+        // 'distances' map stores the distance of a point from the startPoint
+        const distances = new Map();
+        // 'previous' map stores the previous point in the shortest path 
+        const previous = new Map();
+        // 'queue' is a priority queue which stores points in the increasing 
+        // order of their distances from the startPoint.
+        const queue = [];
+
+        this.points.forEach(point => {
+            distances.set(point, Number.MAX_SAFE_INTEGER);
+            previous.set(point, null);
+        })
+
+        distances.set(startPoint, 0);
+        queue.push({ point: startPoint, distance: 0 });
+
+        while (queue.length > 0) {
+            // Sort queue by distance and pop the closest point
+            queue.sort((a, b) => a.distance - b.distance);
+            const { point: currentPoint } = queue.shift();
+
+            // Reached target point
+            if (currentPoint.equals(endPoint)) {
+                break;
+            }
+
+            const segments = this.getSegmentsLeavingFromPoint(currentPoint);
+            for (const segment of segments) {
+                const neighborPoint = segment.p1.equals(currentPoint) ? segment.p2 : segment.p1;
+                if (neighborPoint) {
+                    const altDistance = distances.get(currentPoint) + segment.length();
+                    if (altDistance < distances.get(neighborPoint)) {
+                        distances.set(neighborPoint, altDistance);
+                        previous.set(neighborPoint, currentPoint);
+                        queue.push({ point: neighborPoint, distance: altDistance });
+                    }
+                }
+            }
+        }
+
+        // Backtracking
+        const path = [];
+        let currentPoint = endPoint;
+        while (currentPoint) {
+            path.unshift(currentPoint);
+            currentPoint = previous.get(currentPoint);
+        }
+
+        return path;
+    }
+
+    getShortestPathV2(startPoint, endPoint) {
+        for (const point of this.points) {
+            point.distance = Number.MAX_SAFE_INTEGER;
+            point.visited = false;
+        }
+
+        let currentPoint = startPoint;
+        currentPoint.distance = 0;
+
+        while (!endPoint.visited) {
+            const segments = this.getSegmentsLeavingFromPoint(currentPoint);
+            for (const segment of segments) {
+                const neighborPoint = segment.p1.equals(currentPoint) ? segment.p2 : segment.p1;
+                if (currentPoint.distance + segment.length() < neighborPoint.distance) {
+                    neighborPoint.distance = currentPoint.distance + segment.length();
+                    neighborPoint.prev = currentPoint;
+                }
+            }
+            currentPoint.visited = true;
+
+            const unvisited = this.points.filter((p) => p.visited === false);
+            const dists = unvisited.map((p) => p.distance);
+            currentPoint = unvisited.find((p) => p.distance == Math.min(...dists));
+        }
+
+        // Backtracking
+        const path = [];
+        currentPoint = endPoint;
+        while (currentPoint) {
+            path.unshift(currentPoint);
+            currentPoint = currentPoint.prev;
+        }
+
+
+
+        return path;
     }
 
     getCenter() {

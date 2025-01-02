@@ -351,12 +351,15 @@ class World {
     }
 
     #updateCars() {
+        // sensor check while filtering any cars are required 
+        // because we only update AI cars not KEYS-controlled cars.
         const cars = this
             .markings
             .filter(
                 (marking) => (
                     (marking instanceof StartMarking) &&
-                    (!marking.car.damaged)
+                    (!marking.car.damaged) &&
+                    (marking.car.sensor)
                 )
             ).map(
                 (marking) => marking.car

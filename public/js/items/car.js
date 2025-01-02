@@ -19,6 +19,9 @@ class Car {
             reverse: false
         };
 
+        this.target = null;
+        this.path = null;
+
         if (controlType === "AI") {
             this.showSensor = settings.showSensors;
             this.sensor = new Sensor(
