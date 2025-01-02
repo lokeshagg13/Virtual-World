@@ -50,9 +50,13 @@ class MiniMap {
                 scaledViewpoint.y + height / 2
             );
             this.ctx.scale(scaler, scaler);
+
+            // Draw roads
             for (const segment of this.world.graph.segments) {
                 segment.draw(this.ctx, { width: 3 / scaler, color: "white" });
             }
+
+            // Draw target
             let targetMarking = this.world.getTargetMarking();
             if (targetMarking.index >= 0) {
                 targetMarking = targetMarking.element;
@@ -63,6 +67,16 @@ class MiniMap {
                 new Point(targetMarking.center.x, targetMarking.center.y)
                     .draw(this.ctx, { size: 50, color: "red", outline: true });
             }
+
+            // Draw path to target
+            if (this.world.carToFollow && this.world.carToFollow.path) {
+                const path = this.world.carToFollow.path;
+                new Segment(viewpoint, path[1]).draw(this.ctx, { width: 2 / scaler, color: "cyan" });
+                for (let i = 1; i < path.length - 1; i++) {
+                    new Segment(path[i], path[i + 1]).draw(this.ctx, { width: 2 / scaler, color: "cyan" });
+                }
+            }
+
             this.ctx.restore();
             if (this.world.carToFollow) {
                 new Point(width / 2, height / 2)
