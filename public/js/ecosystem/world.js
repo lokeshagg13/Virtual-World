@@ -397,6 +397,13 @@ class World {
         }
     }
 
+    getTargetMarking() {
+        return {
+            index: this.markings.findIndex(m => m instanceof TargetMarking),
+            element: this.markings.find(m => m instanceof TargetMarking)
+        }
+    }
+
     draw(ctx, viewpoint, renderRadius = 1000) {
         this.#removeDisconnectedMarkings();
         this.#updateTrafficLights();

@@ -84,9 +84,9 @@ class MarkingEditor {
 
     #addMarkingToWorld() {
         if (this.intent instanceof TargetMarking) {
-            const currentTargetMarking = this.world.markings.findIndex((m) => m instanceof TargetMarking);
-            if (currentTargetMarking >= 0) {
-                this.world.markings.splice(currentTargetMarking, 1);
+            const currentTargetMarking = this.world.getTargetMarking();
+            if (currentTargetMarking.index >= 0) {
+                this.world.markings.splice(currentTargetMarking.index, 1);
             }
             for (const marking of this.world.markings) {
                 if (marking instanceof StartMarking) {
@@ -101,8 +101,9 @@ class MarkingEditor {
             }
         }
         if (this.intent instanceof StartMarking) {
-            const currentTargetMarking = this.world.markings.find((m) => m instanceof TargetMarking);
-            if (currentTargetMarking) {
+            let currentTargetMarking = this.world.getTargetMarking();
+            if (currentTargetMarking.index >= 0) {
+                currentTargetMarking = currentTargetMarking.element;
                 this.intent.car.target = currentTargetMarking;
                 const startPoint = getNearestPoint(this.intent.car.center, this.world.graph.points);
                 const endPoint = getNearestPoint(currentTargetMarking.center, this.world.graph.points);

@@ -53,6 +53,16 @@ class MiniMap {
             for (const segment of this.world.graph.segments) {
                 segment.draw(this.ctx, { width: 3 / scaler, color: "white" });
             }
+            let targetMarking = this.world.getTargetMarking();
+            if (targetMarking.index >= 0) {
+                targetMarking = targetMarking.element;
+                new Point(targetMarking.center.x, targetMarking.center.y)
+                    .draw(this.ctx, { size: 250, color: "red", outline: true });
+                new Point(targetMarking.center.x, targetMarking.center.y)
+                    .draw(this.ctx, { size: 150, color: "white", outline: true });
+                new Point(targetMarking.center.x, targetMarking.center.y)
+                    .draw(this.ctx, { size: 50, color: "red", outline: true });
+            }
             this.ctx.restore();
             if (this.world.carToFollow) {
                 new Point(width / 2, height / 2)
