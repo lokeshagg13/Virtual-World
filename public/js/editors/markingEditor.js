@@ -45,6 +45,12 @@ class MarkingEditor {
     #handleMouseDown(ev) {
         if (ev.button == 0) { // left click
             if (this.intent) {
+                if (this.intent instanceof TargetMarking) {
+                    const currentTargetMarking = this.world.markings.findIndex((m) => m instanceof TargetMarking);
+                    if (currentTargetMarking >= 0) {
+                        this.world.markings.splice(currentTargetMarking, 1);
+                    }
+                }
                 this.world.markings.push(this.intent);
                 this.intent = null;
             }
