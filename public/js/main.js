@@ -5,8 +5,8 @@ myCanvas.height = 600;
 const ctx = myCanvas.getContext("2d");
 
 let world = new World(new Graph());
-const viewport = new Viewport(myCanvas, world.zoom, world.offset);
-const miniMap = new MiniMap(new MiniMapEditor(), world);
+let viewport = new Viewport(myCanvas, world.zoom, world.offset);
+let miniMap = new MiniMap(new MiniMapEditor(), world);
 
 let editors = {
     graph: new GraphEditor(viewport, world),
@@ -50,7 +50,20 @@ function animate() {
 }
 
 function clearCanvas() {
-    editors['graph'].dispose();
+    world = new World(new Graph());
+    viewport = new Viewport(myCanvas, world.zoom, world.offset);
+    miniMap = new MiniMap(new MiniMapEditor(), world);
+    editors = {
+        graph: new GraphEditor(viewport, world),
+        simulation: new SimulationEditor(viewport, world),
+        start: new StartEditor(viewport, world),
+        stop: new StopEditor(viewport, world),
+        yield: new YieldEditor(viewport, world),
+        crossing: new CrossingEditor(viewport, world),
+        parking: new ParkingEditor(viewport, world),
+        target: new TargetEditor(viewport, world),
+        trafficLight: new TrafficLightEditor(viewport, world),
+    };
     setMode('graph');
 }
 
