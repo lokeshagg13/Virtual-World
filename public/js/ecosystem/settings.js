@@ -37,7 +37,7 @@ class Settings {
         this.showSensors = showSensors;
         this.brainComplexity = brainComplexity;
         this.brainLevels = brainLevels;
-        this.brainNeuronCounts = brainNeuronCounts.unshift(sensorRayCount);
+        this.brainNeuronCounts = [sensorRayCount, ...brainNeuronCounts];
         this.carMaxSpeed = carMaxSpeed;
         this.carAcceleration = carAcceleration;
         this.roadFriction = roadFriction;
