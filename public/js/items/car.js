@@ -137,9 +137,15 @@ class Car {
         return new Polygon(points);
     }
 
-    #assessDamage(roadBorders) {
+    #assessDamage(roadBorders, roadDividers) {
         for (let i = 0; i < roadBorders.length; i++) {
             if (polygonSegmentIntersect(this.polygon, roadBorders[i])) {
+                return true;
+            }
+        }
+
+        for (let i = 0; i < roadDividers.length; i++) {
+            if (polygonSegmentIntersect(this.polygon, roadDividers[i])) {
                 return true;
             }
         }
@@ -159,7 +165,7 @@ class Car {
         );
     }
 
-    update(roadBorders) {
+    update(roadBorders, roadDividers) {
         const settings = World.loadSettingsFromLocalStorage();
         this.#updateSettings(settings);
         if (!this.damaged) {
@@ -168,10 +174,10 @@ class Car {
                 this.fitness += 1;
             }
             this.polygon = this.#createPolygonAroundCar();
-            this.damaged = this.#assessDamage(roadBorders);
+            this.damaged = this.#assessDamage(roadBorders, roadDividers);
         }
         if (this.sensor) {
-            this.sensor.update(roadBorders);
+            this.sensor.update(roadBorders, roadDividers);
 
             // If there is no reading on a sensor which means no obstacle detected
             // then its input to the neural network is 0

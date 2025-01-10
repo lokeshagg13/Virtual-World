@@ -366,7 +366,7 @@ class World {
             );
 
         for (const car of cars) {
-            car.update(this.roadBorders);
+            car.update(this.roadBorders, this.graph.segments);
         }
 
         this.carToFollow = cars.find(
